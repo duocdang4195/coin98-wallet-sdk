@@ -3,7 +3,7 @@ export const AWS_CURRENCY = (name) => `https://coin98.s3.ap-southeast-1.amazonaw
 export const PROVIDER_PATH = {
   evm: require('../provider/evm').default,
   cosmos: require('../provider/cosmos'),
-  solana: require('../provider/solana')
+  solana: require('../provider/solana').default
 }
 
 // Chain ID already supported in Coin98 ecosystem
