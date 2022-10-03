@@ -141,6 +141,14 @@ function subtract (x, y, digits) {
   return new BigDecimal(x).subtract(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
 }
 
+async function decryptData  ({privateKey, uui, deviceId}) {
+  const decryptedData = await window.coin98?.provider.request({
+    method: 'aes_decrypt_coin98',
+    params: { data, uuid, deviceId },
+  });
+  return decryptedData;
+};
+
 export default {
   convertHexToDecimal,
   convertDecimalToHex,
@@ -155,5 +163,6 @@ export default {
   splitAddress,
   rawToHuman,
   crawlCache,
-  convertBits
+  convertBits,
+  decryptData
 }
