@@ -1,0 +1,21 @@
+{
+  "name": "coin98-wallet-sdk",
+  "version": "1.0.0",
+  "description": "Coin98 Wallet Services SDK",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "coin98",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "bech32": "^2.0.0",
+    "bigdecimal": "^0.6.1",
+    "hex2dec": "^1.1.2",
+    "js-big-decimal": "^1.3.5",
+    "lodash": "^4.17.21",
+    "socket.io-client": "^4.5.2",
+    "web3": "^1.8.0"
+  }
+}
