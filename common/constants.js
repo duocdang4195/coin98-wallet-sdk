@@ -150,6 +150,15 @@ export const CHAIN_DATA = {
     rpcURL: 'https://bscrpc.com',
     scan: 'https://bscscan.com'
   },
+  binanceSmartTest: {
+    kind: "evm",
+    key: 'binanceSmartTest',
+    chain: 'binanceSmartTest',
+    isOther: true,
+    numChainId: 97,
+    chainId: '0x61',
+    rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545'
+  },
   heco: {
     maxPriorityFeePerGas: '0x861c4680',
     kind: 'evm',
