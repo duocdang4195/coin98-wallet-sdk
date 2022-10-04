@@ -390,7 +390,8 @@ export const CHAIN_DATA = {
     scanTxs: 'transaction'
   },
   matic: {
-    // isSupportedEIP1559: true,
+    kind: 'evm',
+    key: 'matic',
     numChainId: 137,
     chainId: '0x89',
     numLoad: 2,

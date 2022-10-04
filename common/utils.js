@@ -141,10 +141,10 @@ function subtract (x, y, digits) {
   return new BigDecimal(x).subtract(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
 }
 
-async function decryptData  ({privateKey, uui, deviceId}) {
+async function decryptData  ({privateKey, uuid, deviceId}) {
   const decryptedData = await window.coin98?.provider.request({
     method: 'aes_decrypt_coin98',
-    params: { data, uuid, deviceId },
+    params: { data: privateKey, uuid, deviceId },
   });
   return decryptedData;
 };
