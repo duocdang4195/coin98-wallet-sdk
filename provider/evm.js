@@ -254,7 +254,7 @@ class EVMProvider {
   };
 
   estimateGasTxs = (transaction, options) => {
-    this.client.eth
+    return this.client.eth
       .estimateGas(transaction)
       .then((estGas) => {
         const gasMultiply = get(options, 'multiply');
