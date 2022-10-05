@@ -1,48 +1,54 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js'
-import get from 'lodash/get'
-import compact from 'lodash/compact'
-import chunk from 'lodash/chunk'
-import { TokenProgramInstructionService } from './TokenProgramInstructionService'
-import { TokenProgramService } from './TokenProgramService'
+import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import get from 'lodash/get';
+import compact from 'lodash/compact';
+import chunk from 'lodash/chunk';
+import { TokenProgramInstructionService } from './TokenProgramInstructionService';
+import { TokenProgramService } from './TokenProgramService';
 import {
   EXCEED_LIMIT,
   INSUFFICIENT_FUNDS,
   MESS_000,
   TRANSACTION_FAILED,
-  TRANSACTION_LARGE
-} from '../messages'
-import utils, { required } from '../utils'
-import { NATIVE_SOL } from './constants'
-const bs58 = require('bs58')
+  TRANSACTION_LARGE,
+} from '../messages';
+import { NATIVE_SOL } from './constants';
+import utils, { required } from '../../common/utils';
+import { IdlParserService } from './IdlParserServices';
+import { SolanaService } from './solanaServices';
+const bs58 = require('bs58');
 
 class SolanaProvider {
-  constructor (
+  constructor(
     options = {
-      rpc: 'https://ssc-dao.genesysgo.net/'
+      rpc: 'https://ssc-dao.genesysgo.net/',
     }
   ) {
     // this.chainSetting =  Connector.getChainSetting(options.key)
-    this.chainSetting = NATIVE_SOL
-    this.rpc = options.rpc
+    this.chainSetting = NATIVE_SOL;
+    this.rpc = options.rpc;
     this.client = new Connection(this.rpc, {
-      commitment: 'confirmed'
-    })
-    this.isAddress = this.isAddress.bind(this)
-    this.balance = this.balance.bind(this)
-    this.balanceOf = this.balanceOf.bind(this)
-    this.balanceOfMultipleAddress = this.balanceOfMultipleAddress.bind(this)
-    this.transfer = this.transfer.bind(this)
+      commitment: 'confirmed',
+    });
+    this.TokenProgramService = TokenProgramService;
+    this.TokenProgramInstructionService = TokenProgramInstructionService;
+    this.IdlParserService = IdlParserService;
+    this.SolanaService = SolanaService;
+    // this.isAddress = this.isAddress.bind(this)
+    // this.balance = this.balance.bind(this)
+    // this.balanceOf = this.balanceOf.bind(this)
+    // this.balanceOfMultipleAddress = this.balanceOfMultipleAddress.bind(this)
+    // this.transfer = this.transfer.bind(this)
   }
 
   // Validate an solana wallet address
   // Check that a pubkey is on the ed25519 curve.
   // type address: number | string | Buffer | Uint8Array | number[]
   // return boolean
-  isAddress (address) {
+  isAddress(address) {
     try {
-      return PublicKey.isOnCurve(address)
+      return PublicKey.isOnCurve(address);
     } catch (err) {
-      return false
+      return false;
     }
   }
 
@@ -53,103 +59,103 @@ class SolanaProvider {
 
   // address of wallet is publickey
   // return balance of wallet
-  async balance (address, options) {
+  async balance(address, options) {
     const worker = async () => {
-      const rawBalance = await this.client.getBalance(address)
+      const rawBalance = await this.client.getBalance(address);
       return get(options, 'isRaw')
         ? rawBalance
-        : utils.rawToHuman(rawBalance, this.chainSetting.decimals)
-    }
+        : utils.rawToHuman(rawBalance, this.chainSetting.decimals);
+    };
 
-    return utils.crawlCache(address + 'balance', this, worker, 5000)
+    return utils.crawlCache(address + 'balance', this, worker, 5000);
   }
 
   // ownerAddress: Publickey
   // return balance token of owner address
-  async balanceOf (ownerAddress, options) {
+  async balanceOf(ownerAddress, options) {
     // address: mintAddress of token type Publickey
     // decimals: decimal of token
     // isRaw: if want to get raw balance
-    const { address, decimals, isRaw } = options
-    required(address, 0)
-    required(decimals, 0)
+    const { address, decimals, isRaw } = options;
+    required(address, 0);
+    required(decimals, 0);
     try {
       const worker = async () => {
         const ata = await TokenProgramService.findAssociatedTokenAddress(
           ownerAddress,
           address
-        )
+        );
         const info = await TokenProgramService.getTokenAccountInfo(
           this.client,
           ata
-        )
-        const rawBalance = get(info, 'amount', '').toString()
-        return isRaw ? rawBalance : utils.rawToHuman(rawBalance, decimals)
-      }
+        );
+        const rawBalance = get(info, 'amount', '').toString();
+        return isRaw ? rawBalance : utils.rawToHuman(rawBalance, decimals);
+      };
 
       return utils.crawlCache(
         ownerAddress + 'balanceOf' + get(options, 'contract'),
         this,
         worker,
         get(options, 'isLatest') ? 0 : 5000
-      )
+      );
     } catch (err) {
-      return 0
+      return 0;
     }
   }
 
   // ownerAddress: Publickey
   // return list balance token
-  async balanceOfMultipleAddress (ownerAddress, tokenList, options) {
-    required(tokenList, 0)
-    required(ownerAddress.toString(), 0)
+  async balanceOfMultipleAddress(ownerAddress, tokenList, options) {
+    required(tokenList, 0);
+    required(ownerAddress.toString(), 0);
 
     try {
       const addressChain = compact(
         tokenList.map((token) => token.address)
-      ).filter((item) => item !== NATIVE_SOL.mintAddress)
+      ).filter((item) => item !== NATIVE_SOL.mintAddress);
       // find ata address base owner address
       const arrAta = await Promise.all(
         addressChain.map(async (mint, index) => {
-          const mintAddress = new PublicKey(mint)
+          const mintAddress = new PublicKey(mint);
           const ata = await TokenProgramService.findAssociatedTokenAddress(
             ownerAddress,
             mintAddress
-          )
-          return ata
+          );
+          return ata;
         })
-      )
+      );
       // fetch account info of list ata
       const response = await this.callPostMultipleRequest({
         method: 'getMultipleAccounts',
-        listAddress: arrAta
-      })
+        listAddress: arrAta,
+      });
 
       const accountData = response.map((item) => {
         // convert data from base64 to buffer
-        const buffer = Buffer.from(get(item, 'data[0]'), 'base64')
+        const buffer = Buffer.from(get(item, 'data[0]'), 'base64');
         // decode account info from buffer
         const info = buffer
           ? TokenProgramInstructionService.decodeTokenAccountInfo(buffer)
-          : null
-        return info
-      })
+          : null;
+        return info;
+      });
 
       const mapData = accountData.map((item) => {
-        if (!item) return null
+        if (!item) return null;
         return {
           walletAddress: ownerAddress.toString(),
           chain: this.chainSetting.key,
           address: get(item, 'mint', '').toString(),
-          rawBalance: get(item, 'amount', '').toString()
-        }
-      })
+          rawBalance: get(item, 'amount', '').toString(),
+        };
+      });
 
       return compact(mapData).sort(
         (a, b) => parseFloat(b.rawBalance) - parseFloat(a.rawBalance)
-      )
+      );
     } catch (error) {
-      return []
+      return [];
     }
   }
 
@@ -157,24 +163,24 @@ class SolanaProvider {
   // wallet: wallet to send txs
   // mintAddress: token mint address -> Publickey
   // amount: amount wei transfer -> Bignumber
-  async transfer (receiver, wallet, mintAddress, amount, options) {
-    if (!this.isAddress(receiver)) throw MESS_000
+  async transfer(receiver, wallet, mintAddress, amount, options) {
+    if (!this.isAddress(receiver)) throw MESS_000;
 
-    const transaction = new Transaction()
+    const transaction = new Transaction();
 
     const sourceAddress = await TokenProgramService.findAssociatedTokenAddress(
       wallet.publicKey,
       mintAddress
-    )
+    );
 
-    let destinationAddress = receiver
+    let destinationAddress = receiver;
 
     // check if mint address different SOL, destination address is ata of receiver
     if (mintAddress.toString() !== NATIVE_SOL.mintAddress) {
       destinationAddress = await TokenProgramService.findAssociatedTokenAddress(
         receiver,
         mintAddress
-      )
+      );
       // check if address not available -> create new address with mint
       if (
         !(await TokenProgramService.isAddressAvailable(
@@ -187,8 +193,8 @@ class SolanaProvider {
             wallet.publicKey,
             receiver,
             mintAddress
-          )
-        transaction.add(createAtaInstruction)
+          );
+        transaction.add(createAtaInstruction);
       }
     }
 
@@ -198,113 +204,113 @@ class SolanaProvider {
         sourceAddress,
         destinationAddress,
         amount
-      )
-    transaction.add(instructionTransfer)
+      );
+    transaction.add(instructionTransfer);
     const hash = await this.sendTransaction({
       transactions: transaction,
       wallet,
-      signers: [wallet.publicKey]
-    })
-    console.log({ hash })
-    return hash
+      signers: [wallet.publicKey],
+    });
+    console.log({ hash });
+    return hash;
   }
 
-  async signTransaction (transaction) {
+  async signTransaction(transaction) {
     return window?.coin98?.sol
       .request({ method: 'sol_sign', params: [transaction] })
       .then((res) => {
-        const sig = bs58.decode(res.signature)
-        const publicKey = new PublicKey(res.publicKey)
-        transaction.addSignature(publicKey, sig)
-        return transaction
+        const sig = bs58.decode(res.signature);
+        const publicKey = new PublicKey(res.publicKey);
+        transaction.addSignature(publicKey, sig);
+        return transaction;
       })
       .catch((err) => {
-        console.log({ err })
-      })
+        console.log({ err });
+      });
   }
 
   // transactions
   // addressWallet: Publickey
   // signers Publickey[]: arr signer
   // options: add key to handle something
-  async sendTransaction ({ transactions, wallet, signers, options = {} }) {
+  async postBaseSendTxs({ transactions, wallet, signers, options = {} }) {
     if (!wallet.publicKey) {
-      throw new Error(`No publicKey for wallet: ${wallet}`)
+      throw new Error(`No publicKey for wallet: ${wallet}`);
     }
     // isWaitDone: if you want to wait txs max confirmed -> boolean
     // callBackFinal: execute when txs max confirmed -> func
     // callBack: execute when txs confirmed at least one ->
     // dataReturn: if you want to return data -> any
-    const { isWaitDone, callBackFinal, dataReturn, callBack } = options
+    const { isWaitDone, callBackFinal, dataReturn, callBack } = options;
 
     // add recent block
     transactions.recentBlockhash = (
       await this.client.getRecentBlockhash('max')
-    ).blockhash
+    ).blockhash;
 
     // add fee payer
-    transactions.feePayer = wallet.publicKey
-    transactions = await this.signTransaction(transactions)
+    transactions.feePayer = wallet.publicKey;
+    transactions = await this.signTransaction(transactions);
 
     if (signers.length > 1) {
-      const getSignerValid = signers.slice().filter((it) => it.secretKey)
-      transactions.partialSign(...getSignerValid)
+      const getSignerValid = signers.slice().filter((it) => it.secretKey);
+      transactions.partialSign(...getSignerValid);
     }
-    transactions = transactions.serialize()
+    transactions = transactions.serialize();
     const tx = await this.client
       .sendRawTransaction(transactions, signers, {
         skipPreflight: false,
-        preflightCommitment: 'confirmed'
+        preflightCommitment: 'confirmed',
       })
       .catch((err) => {
-        const data = JSON.stringify(get(err, 'logs', ''))
-        return { isErr: true, data: this.encodeMessErr(data) }
-      })
-    const { isErr } = tx
+        const data = JSON.stringify(get(err, 'logs', ''));
+        return { isErr: true, data: this.encodeMessErr(data) };
+      });
+    const { isErr } = tx;
     if (isErr) {
-      return tx
+      return tx;
     }
-    callBack && callBack(tx, dataReturn)
+    callBack && callBack(tx, dataReturn);
 
     // wait for txs confirmed
     this.client.onSignatureWithOptions(
       tx,
       async () => {
         if (isWaitDone) {
-          callBackFinal && callBackFinal(tx, dataReturn)
+          callBackFinal && callBackFinal(tx, dataReturn);
         }
       },
       {
-        commitment: 'confirmed'
+        commitment: 'confirmed',
       }
-    )
-    return tx
+    );
+    return tx;
   }
 
-  encodeMessErr (mess) {
-    const text = mess ? get(mess, 'mess', mess).toString() : ''
-    const stringResult = text.toLowerCase()
+  encodeMessErr(mess) {
+    const text = mess ? get(mess, 'mess', mess).toString() : '';
+    const stringResult = text.toLowerCase();
     if (stringResult.includes('error')) {
       switch (true) {
-      case stringResult.includes('exceeds desired slippage limit'):
-        mess = EXCEED_LIMIT
-        break
-      case stringResult.includes('insufficient funds'):
-      case stringResult.includes('insufficient'):
-        mess = INSUFFICIENT_FUNDS
-        break
-      case stringResult.includes('transaction too large'):
-        mess = TRANSACTION_LARGE
-        break
-      default:
-        mess = TRANSACTION_FAILED
+        case stringResult.includes('exceeds desired slippage limit'):
+          mess = EXCEED_LIMIT;
+          break;
+        case stringResult.includes('insufficient funds'):
+        case stringResult.includes('insufficient'):
+          mess = INSUFFICIENT_FUNDS;
+          break;
+        case stringResult.includes('transaction too large'):
+          mess = TRANSACTION_LARGE;
+          break;
+        default:
+          mess = TRANSACTION_FAILED;
       }
-      return mess
+      return mess;
     }
   }
 
   rawTokenToHuman = (tokenData, walletAddress) => (iBalance, index) => {
-    const formatBalance = parseFloat(iBalance)
+    const formatBalance = parseFloat(iBalance);
 
     // Require balance greater than zero
     if (formatBalance > 0) {
@@ -312,29 +318,29 @@ class SolanaProvider {
         walletAddress,
         chain: this.chainSetting.key,
         address: this.toSUM(tokenData[index]),
-        rawBalance: iBalance
-      }
+        rawBalance: iBalance,
+      };
     }
   };
 
-  getMainToken () {
+  getMainToken() {
     return {
       price: 0,
       cgkId: this.chainSetting.id,
       symbol: this.chainSetting.symbol,
       name: this.chainSetting.name,
       // image: AWS_CURRENCY(this.chainSetting.key),
-      decimals: this.chainSetting.decimals || 9
-    }
+      decimals: this.chainSetting.decimals || 9,
+    };
   }
 
   // listAddress is array publickey to fetch data
   // method is method name of @solana/web3 "https://docs.solana.com/developing/clients/jsonrpc-api"
-  async callPostMultipleRequest ({ method, listAddress }) {
+  async callPostMultipleRequest({ method, listAddress }) {
     try {
       // maximum each request is 100
-      const numberSplit = 100
-      const arrChunk = chunk(listAddress, numberSplit)
+      const numberSplit = 100;
+      const arrChunk = chunk(listAddress, numberSplit);
 
       const bodyFetch = arrChunk.map((arrAccount) => {
         // const body = JSON.stringify()
@@ -342,27 +348,27 @@ class SolanaProvider {
           method,
           params: [arrAccount.map((item) => item), { commitment: 'confirmed' }],
           id: 1,
-          jsonrpc: '2.0'
-        }
-        return body
-      })
+          jsonrpc: '2.0',
+        };
+        return body;
+      });
       const response = await Promise.all(
         bodyFetch.map((item) => this.buildRequest(JSON.stringify(item)))
-      )
-      if (!response) return []
-      let arrData = compact(response)
+      );
+      if (!response) return [];
+      let arrData = compact(response);
 
       arrData = arrData.flat(arrChunk.length).map((data) => {
-        const result = get(data, 'result', {})
-        return get(result, 'value')
-      })
-      return arrData.flat()
+        const result = get(data, 'result', {});
+        return get(result, 'value');
+      });
+      return arrData.flat();
     } catch (err) {
-      return []
+      return [];
     }
   }
 
-  async buildRequest (body) {
+  async buildRequest(body) {
     try {
       const response = await fetch(this.rpc, {
         method: 'POST',
@@ -370,20 +376,20 @@ class SolanaProvider {
           'Content-Type': 'application/json',
           authority: 'coin98.com',
           Authorization: 'Bearer token',
-          development: 'coin98'
+          development: 'coin98',
         },
-        body
-      })
+        body,
+      });
 
       if (response.ok) {
-        return response.json()
+        return response.json();
       } else {
-        return null
+        return null;
       }
     } catch (err) {
-      return null
+      return null;
     }
   }
 }
 
-export default SolanaProvider
+export default SolanaProvider;
