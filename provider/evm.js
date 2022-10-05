@@ -413,7 +413,7 @@ class EVMProvider {
       const blockTransaction = this.client.eth.sendSignedTransaction(
         signedTransaction,
         (err, hash) => {
-          if (err) {
+          if (Object.keys(err || {}).length) {
             console.log('Transaction submitted to blockchain failed: ', err);
             reject(this.encodeMessErr(err));
           } else {
