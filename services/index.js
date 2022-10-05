@@ -3,6 +3,7 @@ import Connector from '../system/connector'
 import useSocket from './socket'
 import useSupport from './support'
 import { CHAIN_DATA } from '../common/constants'
+import dayjs from 'dayjs'
 
 class WalletServices {
   constructor () {
@@ -22,7 +23,7 @@ class WalletServices {
     await this.fetchTokenList()
     if (!get(wallet, 'address')) return
 
-    const firstLoad = moment().unix()
+    const firstLoad = dayjs().unix()
     clog('Start load balance ', firstLoad)
 
     const worker = async () => {
@@ -37,7 +38,7 @@ class WalletServices {
         walletAddress: wallet.address,
         address: ''
       })
-      clog('Load EVM done for address ' + wallet.address, moment().unix() - firstLoad)
+      clog('Load EVM done for address ' + wallet.address, dayjs().unix() - firstLoad)
       return tokenData
     }
 

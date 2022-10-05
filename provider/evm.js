@@ -8,6 +8,7 @@ import messages from './messages';
 import { AWS_CURRENCY, CHAIN_ID } from '../common/constants';
 import { bech32 } from 'bech32';
 import useNFTs from '../services/nfts';
+import dayjs from 'dayjs';
 
 // Provider for all EVM types chain, something like Ether, BNB Chain, Avax-C ....
 // Readmore about EVM types chain in https://web3js.readthedocs.io/, https://docs.ethers.io/v5/
@@ -407,7 +408,7 @@ class EVMProvider {
 
     return new Promise(async (resolve, reject) => {
       let hashTxs;
-      const startTime = moment().unix();
+      const startTime = dayjs().unix();
 
       const blockTransaction = this.client.eth.sendSignedTransaction(
         signedTransaction,
@@ -433,7 +434,7 @@ class EVMProvider {
       if (isWaitDone) {
         blockTransaction
           .then((receipt) => {
-            const endTime = moment().unix();
+            const endTime = dayjs().unix();
             resolve(hashTxs);
 
             callbackFinal &&
