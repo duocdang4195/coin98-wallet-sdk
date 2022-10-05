@@ -24,7 +24,6 @@ class Connector {
 
     connectedChain.forEach((chain) => {
       const Services = PROVIDER_PATH[chain.kind];
-      console.log({ Services, chain, PROVIDER_PATH });
       if (!Services) return;
       // Renewable services for a case renew options
       const keyClient = chain.kind + '_' + chain.key;

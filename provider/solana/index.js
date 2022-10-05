@@ -13,6 +13,8 @@ import {
 } from '../messages';
 import { NATIVE_SOL } from './constants';
 import utils, { required } from '../../common/utils';
+import { IdlParserService } from './IdlParserServices';
+import { SolanaService } from './solanaServices';
 const bs58 = require('bs58');
 
 class SolanaProvider {
@@ -29,6 +31,8 @@ class SolanaProvider {
     });
     this.TokenProgramService = TokenProgramService;
     this.TokenProgramInstructionService = TokenProgramInstructionService;
+    this.IdlParserService = IdlParserService;
+    this.SolanaService = SolanaService;
     // this.isAddress = this.isAddress.bind(this)
     // this.balance = this.balance.bind(this)
     // this.balanceOf = this.balanceOf.bind(this)
@@ -229,7 +233,7 @@ class SolanaProvider {
   // addressWallet: Publickey
   // signers Publickey[]: arr signer
   // options: add key to handle something
-  async sendTransaction({ transactions, wallet, signers, options = {} }) {
+  async postBaseSendTxs({ transactions, wallet, signers, options = {} }) {
     if (!wallet.publicKey) {
       throw new Error(`No publicKey for wallet: ${wallet}`);
     }
