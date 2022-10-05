@@ -358,7 +358,7 @@ class EVMProvider {
     }
 
     if (!rawTransaction.gasPrice) {
-      const gasPriceDefault = await window.wallet.getPostSocket(
+      const gasPriceDefault = await window.wallet.walletService.getPostSocket(
         'emitGasPrice',
         this.chainSetting.key
       );
@@ -422,7 +422,7 @@ class EVMProvider {
             callback && callback(hash);
             !isWaitDone && resolve(hash);
 
-            window.wallet.getPostSocket('emitTxs', {
+            window.wallet.walletService.getPostSocket('emitTxs', {
               hash,
               chain: this.chainSetting.key,
               rawTransaction,
