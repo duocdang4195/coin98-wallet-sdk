@@ -11,8 +11,8 @@ import {
   TRANSACTION_FAILED,
   TRANSACTION_LARGE,
 } from '../messages';
-import utils, { required } from '../utils';
 import { NATIVE_SOL } from './constants';
+import utils, { required } from '../../common/utils';
 const bs58 = require('bs58');
 
 class SolanaProvider {
