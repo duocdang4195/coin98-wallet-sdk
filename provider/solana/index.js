@@ -2,8 +2,8 @@ import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import get from 'lodash/get';
 import compact from 'lodash/compact';
 import chunk from 'lodash/chunk';
-import { TokenProgramInstructionService } from './TokenProgramInstructionService';
-import { TokenProgramService } from './TokenProgramService';
+import { TokenProgramInstructionService } from './tokenProgram_Instruction_Service';
+import { TokenProgramService } from './tokenProgram_Service';
 import {
   EXCEED_LIMIT,
   INSUFFICIENT_FUNDS,
@@ -13,7 +13,7 @@ import {
 } from '../messages';
 import { NATIVE_SOL } from './constants';
 import utils, { required } from '../../common/utils';
-import { IdlParserService } from './IdlParserServices';
+import { IdlParserService } from './idl_Parser_Services';
 import { SolanaService } from './solanaServices';
 const bs58 = require('bs58');
 

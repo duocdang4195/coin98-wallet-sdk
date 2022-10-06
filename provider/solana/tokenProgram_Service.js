@@ -3,7 +3,7 @@ import {
   ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_PROGRAM_ID
 } from './constants'
-import { TokenProgramInstructionService } from './TokenProgramInstructionService'
+import { TokenProgramInstructionService } from './tokenProgram_Instruction_Service'
 
 export class TokenProgramService {
   // address: ata address of owner
