@@ -1,6 +1,6 @@
 import { get } from "lodash";
 import { HashService } from "./hashService";
-
+import * as ed from "@noble/ed25519";
 import * as borsh from '@project-serum/borsh';
 
 const MessageRandomLayout = borsh.struct([
