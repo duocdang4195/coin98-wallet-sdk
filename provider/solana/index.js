@@ -26,6 +26,10 @@ class SolanaProvider {
     // this.chainSetting =  Connector.getChainSetting(options.key)
     this.chainSetting = NATIVE_SOL;
     this.rpc = options.rpc;
+    if (get(options, 'options', false)) {
+      this.rpc = get(options, 'options.rpc', options.rpc);
+    }
+
     this.client = new Connection(this.rpc, {
       commitment: 'confirmed',
     });
