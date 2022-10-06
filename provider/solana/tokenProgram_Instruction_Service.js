@@ -10,7 +10,7 @@ import {
   ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
   TOKEN_PROGRAM_ID
 } from './constants'
-import { TokenProgramService } from './TokenProgramService'
+import { TokenProgramService } from './tokenProgram_Service'
 
 const TOKEN_PROGRAM_LAYOUT = {
   APPROVE: borsh.struct([borsh.u8('instruction'), borsh.u64('amount')]),
