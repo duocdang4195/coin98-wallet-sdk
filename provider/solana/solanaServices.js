@@ -1,6 +1,13 @@
 import { get } from "lodash";
 import { HashService } from "./hashService";
 
+import * as borsh from '@project-serum/borsh';
+
+const MessageRandomLayout = borsh.struct([
+  borsh.publicKey('root'),
+  borsh.publicKey('nftMint'),
+]);
+
 export class SolanaService {
   static async isAddressInUse(connection, address) {
     const programInf = await connection.getAccountInfo(address, 'confirmed');
