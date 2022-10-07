@@ -32,7 +32,7 @@ export class SolanaService {
     const secretKey = get(adminAccount, 'secretKey', false);
     if (!secretKey) {
       return await window?.coin98?.sol
-        .request({ method: 'sol_signMessage', params: [message] })
+        .request({ method: 'sol_signMessage', params: ['0x' + message.toString('hex')] })
         .then(res => {
           const signature = get(res, 'signature');
 
