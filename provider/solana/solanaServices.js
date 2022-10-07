@@ -2,6 +2,7 @@ import { get } from "lodash";
 import { HashService } from "./hashService";
 import * as ed from "@noble/ed25519";
 import * as borsh from '@project-serum/borsh';
+import base58 from "bs58";
 
 const MessageRandomLayout = borsh.struct([
   borsh.publicKey('root'),
@@ -35,7 +36,7 @@ export class SolanaService {
         .then(res => {
           const signature = get(res, 'signature');
 
-          return Buffer.from(signature)
+          return base58.decode(signature)
       })
     }
     const signature = await ed.sign(message, adminAccount.secretKey.slice(0, 32))
