@@ -2,8 +2,8 @@ import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import get from 'lodash/get';
 import compact from 'lodash/compact';
 import chunk from 'lodash/chunk';
-import { TokenProgramInstructionService } from './TokenProgramInstructionService';
-import { TokenProgramService } from './TokenProgramService';
+import { TokenProgramInstructionService } from './tokenProgram_Instruction_Service';
+import { TokenProgramService } from './tokenProgram_Service';
 import {
   EXCEED_LIMIT,
   INSUFFICIENT_FUNDS,
@@ -13,7 +13,7 @@ import {
 } from '../messages';
 import { NATIVE_SOL } from './constants';
 import utils, { required } from '../../common/utils';
-import { IdlParserService } from './IdlParserServices';
+import { IdlParserService } from './idl_Parser_Services';
 import { SolanaService } from './solanaServices';
 const bs58 = require('bs58');
 
@@ -26,6 +26,10 @@ class SolanaProvider {
     // this.chainSetting =  Connector.getChainSetting(options.key)
     this.chainSetting = NATIVE_SOL;
     this.rpc = options.rpc;
+    if (get(options, 'options', false)) {
+      this.rpc = get(options, 'options.rpc', options.rpc);
+    }
+
     this.client = new Connection(this.rpc, {
       commitment: 'confirmed',
     });
@@ -257,8 +261,7 @@ class SolanaProvider {
       transactions.partialSign(...getSignerValid);
     }
     transactions = transactions.serialize();
-    const tx = await this.client
-      .sendRawTransaction(transactions, signers, {
+    const tx = await this.client.sendRawTransaction(transactions, signers, {
         skipPreflight: false,
         preflightCommitment: 'confirmed',
       })
@@ -281,11 +284,13 @@ class SolanaProvider {
         }
       },
       {
-        commitment: 'confirmed',
+        commitment: 'finalized',
+        enableReceivedNotification: true
       }
     );
     return tx;
   }
+
 
   encodeMessErr(mess) {
     const text = mess ? get(mess, 'mess', mess).toString() : '';

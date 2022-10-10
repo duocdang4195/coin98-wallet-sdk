@@ -3,7 +3,7 @@ import { TransactionInstruction } from "@solana/web3.js";
 import camelCase from "camelcase";
 import { snakeCase } from "snake-case";
 import { BorshService } from "./borshService";
-import { IdlCoder } from "./IdlCoder";
+import { IdlCoder } from "./idl_Coder";
 
 
 export class IdlParserService {

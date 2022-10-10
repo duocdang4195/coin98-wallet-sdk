@@ -149,6 +149,15 @@ async function decryptData  ({privateKey, uuid, deviceId}) {
   return decryptedData;
 };
 
+async function sendConfirmTransaction(txn) {
+  const sign = await window.coin98?.provider.request({
+    method: "eth_sendTransaction",
+    params: [txn]
+  });
+
+  return sign;
+}
+
 export default {
   convertHexToDecimal,
   convertDecimalToHex,
@@ -164,5 +173,6 @@ export default {
   rawToHuman,
   crawlCache,
   convertBits,
-  decryptData
+  decryptData,
+  sendConfirmTransaction
 }

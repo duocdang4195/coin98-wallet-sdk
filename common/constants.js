@@ -307,7 +307,8 @@ export const CHAIN_DATA = {
     trcName: 'SOL SPL',
     rpcURL: 'https://coin98.genesysgo.net',
     rpcURLSerum: 'https://solana-api.projectserum.com',
-    scan: 'https://solscan.io'
+    scan: 'https://solscan.io',
+    launchpadProgramId: "4C2GUK747nrSAhxpbmFvuCAFcL2Si9j8CNruaDMKkqeT"
   },
   near: {
     numLoad: 2,
