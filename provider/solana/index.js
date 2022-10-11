@@ -261,7 +261,8 @@ class SolanaProvider {
       transactions.partialSign(...getSignerValid);
     }
     transactions = transactions.serialize();
-    const tx = await this.client.sendRawTransaction(transactions, signers, {
+    const tx = await this.client
+      .sendRawTransaction(transactions, signers, {
         skipPreflight: false,
         preflightCommitment: 'confirmed',
       })
@@ -285,12 +286,11 @@ class SolanaProvider {
       },
       {
         commitment: 'finalized',
-        enableReceivedNotification: true
+        enableReceivedNotification: true,
       }
     );
     return tx;
   }
-
 
   encodeMessErr(mess) {
     const text = mess ? get(mess, 'mess', mess).toString() : '';
