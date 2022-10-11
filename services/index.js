@@ -4,6 +4,7 @@ import useSocket from './socket'
 import useSupport from './support'
 import { CHAIN_DATA } from '../common/constants'
 import dayjs from 'dayjs'
+import get from 'lodash/get'
 
 class WalletServices {
   constructor () {
