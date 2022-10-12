@@ -34,7 +34,7 @@ class EVMProvider {
     if (!this.chainId) {
       this.chainId = this.client.getChainId();
     }
-    this.nftServices = useNFTs(97);
+    this.nftServices = useNFTs(this.chainId);
   }
 
   // Validate an evm address
@@ -258,6 +258,7 @@ class EVMProvider {
     return this.client.eth
       .estimateGas(transaction)
       .then((estGas) => {
+        console.log({ estGas });
         const gasMultiply = get(options, 'multiply');
 
         return estGas < 21000
@@ -267,6 +268,11 @@ class EVMProvider {
           : estGas;
       })
       .catch((err) => {
+        console.log('err estimate gas:', {
+          err: err.toString(),
+          transaction,
+          options,
+        });
         const stringErr = err.toString();
 
         // For a case below min gasPrice require for running transaction
@@ -286,6 +292,7 @@ class EVMProvider {
           delete transaction.chainId;
           return this.estimateGasTxs(transaction);
         }
+        // throw err
         return 0;
       });
   };
@@ -346,14 +353,20 @@ class EVMProvider {
       from: wallet.address,
       data: data || '0x',
       value: value || '0x0',
-      gas: gas || 0,
+      gas,
       gasPrice: gasPrice || 0,
       chainId: this.chainId,
     };
-
+    console.log({ rawTransaction });
     if (!rawTransaction.gas) {
       rawTransaction.gas = await this.estimateGasTxs(rawTransaction, {
         multiply: gasMultiply,
+      });
+      console.log('run here ... sdk', {
+        rawTransaction,
+        test: await this.estimateGasTxs(rawTransaction, {
+          multiply: gasMultiply,
+        }),
       });
     }
 
