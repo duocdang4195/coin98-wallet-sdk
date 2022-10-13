@@ -292,8 +292,8 @@ class EVMProvider {
           delete transaction.chainId;
           return this.estimateGasTxs(transaction);
         }
-        // throw err
-        return 0;
+        throw err;
+        // return 0;
       });
   };
 
@@ -345,6 +345,7 @@ class EVMProvider {
       callbackFinal,
       callbackConfirmation,
       isWaitDone,
+      isGetGas,
     } = options;
 
     const rawTransaction = {
@@ -357,17 +358,28 @@ class EVMProvider {
       gasPrice: gasPrice || 0,
       chainId: this.chainId,
     };
-    console.log({ rawTransaction });
-    if (!rawTransaction.gas) {
-      rawTransaction.gas = await this.estimateGasTxs(rawTransaction, {
-        multiply: gasMultiply,
-      });
+    console.log({
+      rawTransaction,
+      isGetGas,
+      test: utils.convertHexToDecimal(rawTransaction.gas),
+    });
+    if (
+      !rawTransaction.gas ||
+      parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0
+    ) {
+      const gasEst =
+        (await this.estimateGasTxs(rawTransaction, {
+          multiply: gasMultiply,
+        })) * 4;
+      rawTransaction.gas = gasEst;
       console.log('run here ... sdk', {
         rawTransaction,
-        test: await this.estimateGasTxs(rawTransaction, {
-          multiply: gasMultiply,
-        }),
+
+        gasEst,
       });
+      if (isGetGas) {
+        return gasEst;
+      }
     }
 
     if (!rawTransaction.gasPrice) {
