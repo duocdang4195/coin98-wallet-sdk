@@ -311,7 +311,7 @@ class EVMProvider {
       messageReturn = messages.MESS_002;
     }
 
-    return messageReturn;
+    return messageReturn || stringResult;
   }
 
   // Wallet must correct format { address, privateKey or mnemonic (not recommend) }

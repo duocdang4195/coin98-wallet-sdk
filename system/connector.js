@@ -5,7 +5,7 @@ class Connector {
   constructor(options) {
     this.client = {};
     this.rpcConfig = SETTING_LOCAL;
-    // this.initial()
+    // this.initial();
   }
 
   // Get chain settings from chain key

@@ -1,7 +1,7 @@
-const RAW_TOKEN_LIST =
-  'https://raw.githubusercontent.com/khiemsoft/coin98-token-list/main/token-list.json';
-const RAW_SETTING =
-  'https://raw.githubusercontent.com/khiemsoft/coin98-token-list/main/settings.json';
+import axios from 'axios';
+
+const RAW_TOKEN_LIST = 'https://rapid.coin98.com/token-list.json';
+const RAW_SETTING = 'https://rapid.coin98.com/settings.json';
 
 const useSupport = () => {
   const getTokenList = async () => {
@@ -13,20 +13,17 @@ const useSupport = () => {
   };
 
   const postGithub = async (link) => {
-    return fetchAPI(link, {
-      headers: {
-        Authorization: 'Bearer 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',
-      },
-    }).catch();
+    return fetchAPI(link).catch();
   };
 
-  const fetchAPI = async (link, options) => {
+  const fetchAPI = async (link) => {
     try {
-      const raw = await fetch(link, options);
+      const raw = await axios.get(link);
       console.log({ raw });
       return raw.json();
     } catch (err) {
       console.log({ err });
+      throw err;
     }
   };
 
