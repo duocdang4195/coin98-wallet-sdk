@@ -70,9 +70,9 @@ export const CHAIN_DATA = {
     kind: 'evm',
     key: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
 
-    numChainId: 56,
+    numChainId: 97,
     decimals: 18,
-    chainId: '0x38',
+    chainId: '0x61',
     numLoad: 1,
     isBridge: true,
     isToken: true,
@@ -98,7 +98,9 @@ export const CHAIN_DATA = {
     chain: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
     trcName: 'BNB BEP20',
     rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-    scan: 'https://testnet.bscscan.com/'
+    scan: 'https://testnet.bscscan.com/',
+    launchpadFactory: '0x4c7fab90F02E063090b265768a8CBb2568c7b260',
+    launchpadMintableKey: '0x444f313053c893c305c4a5f333f3b033d548405c830016c4b623e787aa045145'
   },
   bitcoin: {
     numLoad: 5,
