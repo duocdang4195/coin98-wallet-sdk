@@ -67,10 +67,19 @@ export const CHAIN_DATA = {
     trcName: 'Custom Network'
   },
   binanceSmartTest: {
+    kind: 'evm',
+    key: 'binanceSmartTest',
+
+    name: 'BNB Smart Chain',
+    shortName: 'BSC',
+    symbol: 'BNB',
+    chain: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+
     isOther: true,
     numChainId: 97,
     chainId: '0x61',
-    rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545'
+    rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+    scan: 'https://testnet.bscscan.com/'
   },
   bitcoin: {
     numLoad: 5,
