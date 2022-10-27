@@ -82,7 +82,7 @@ export const CHAIN_DATA = {
     symbolSpecial: 'BSC',
     balances: '0xA6762c710852681c4593C10c4304C5211FB2122c',
     multisend: '0x2E1D30460265bFEBedacf5bb6f9A80F0E74B7498',
-    nftMint: '0xc4cAd0938256ABA4417c565044Be2c2EB77096cb',
+    nftMint: '0x2418400d29F8B774E49e93C5cb54460ae5Ecd788',
     stake: '0x08ac9c38ce078b9b81e5ab5bf8aafc3d2db94385',
     subName: 'BSC',
 
