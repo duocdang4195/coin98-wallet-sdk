@@ -15,3 +15,5 @@ export const NATIVE_SOL = {
   decimals: 9,
   id: 'solana'
 }
+
+export const INITIALIZE_MINT_SPAN = 82

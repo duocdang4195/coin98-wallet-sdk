@@ -3,6 +3,7 @@ import { HashService } from "./hashService";
 import * as ed from "@noble/ed25519";
 import * as borsh from '@project-serum/borsh';
 import base58 from "bs58";
+import { PublicKey } from "@solana/web3.js";
 
 const MessageRandomLayout = borsh.struct([
   borsh.publicKey('root'),
@@ -42,5 +43,38 @@ export class SolanaService {
     const signature = await ed.sign(message, adminAccount.secretKey.slice(0, 32))
 
     return Buffer.from(signature)
+  }
+
+  static async findMetadataAddress(
+    mint,
+    tokenMetadataProgramId,
+  ) {
+    const [address,] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from("metadata"),
+        tokenMetadataProgramId.toBytes(),
+        mint.toBytes()
+      ],
+      tokenMetadataProgramId
+    )
+
+    return address
+  }
+
+  static async findMasterEditionAddress(
+    mint,
+    tokenMetadataProgramId,
+  ) {
+    const [address,] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from("metadata"),
+        tokenMetadataProgramId.toBytes(),
+        mint.toBytes(),
+        Buffer.from("edition"),
+      ],
+      tokenMetadataProgramId
+    )
+
+    return address
   }
 }
