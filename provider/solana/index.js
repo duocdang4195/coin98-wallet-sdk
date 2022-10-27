@@ -65,7 +65,7 @@ class SolanaProvider {
   // return balance of wallet
   async balance(address, options) {
     const worker = async () => {
-      const rawBalance = await this.client.getBalance(address);
+      const rawBalance = await this.client.getBalance(new PublicKey(address));
       return get(options, 'isRaw')
         ? rawBalance
         : utils.rawToHuman(rawBalance, this.chainSetting.decimals);

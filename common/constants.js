@@ -99,7 +99,7 @@ export const CHAIN_DATA = {
     trcName: 'BNB BEP20',
     rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545',
     scan: 'https://testnet.bscscan.com/',
-    launchpadFactory: '0x4c7fab90F02E063090b265768a8CBb2568c7b260',
+    launchpadFactory: '0x31313099814980854c55C131bDEa6736e93feE8b',
     launchpadMintableKey: '0x444f313053c893c305c4a5f333f3b033d548405c830016c4b623e787aa045145'
   },
   bitcoin: {
