@@ -358,11 +358,17 @@ class EVMProvider {
       gasPrice: gasPrice || 0,
       chainId: this.chainId,
     };
-    console.log({
-      rawTransaction,
-      isGetGas,
-      test: utils.convertHexToDecimal(rawTransaction.gas),
-    });
+
+
+    if (!rawTransaction.gasPrice) {
+      const gasPriceDefault = await window.wallet.walletService.getPostSocket(
+        'emitGasPrice',
+        this.chainSetting.key
+      );
+      rawTransaction.gas = gasPriceDefault || (await this.getGasPrice());
+    }
+
+
     if (
       !rawTransaction.gas ||
       parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0
@@ -372,23 +378,12 @@ class EVMProvider {
           multiply: gasMultiply,
         })) * 4;
       rawTransaction.gas = gasEst;
-      console.log('run here ... sdk', {
-        rawTransaction,
 
-        gasEst,
-      });
       if (isGetGas) {
         return gasEst;
       }
     }
 
-    if (!rawTransaction.gasPrice) {
-      const gasPriceDefault = await window.wallet.walletService.getPostSocket(
-        'emitGasPrice',
-        this.chainSetting.key
-      );
-      rawTransaction.gas = gasPriceDefault || (await this.getGasPrice());
-    }
 
     // Supported new hardfork london
     if (!isHardwareWallet && get(this.chainSetting, 'isSupportedEIP1559')) {
