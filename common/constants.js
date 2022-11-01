@@ -102,6 +102,42 @@ export const CHAIN_DATA = {
     launchpadFactory: '0x31313099814980854c55C131bDEa6736e93feE8b',
     launchpadMintableKey: '0x444f313053c893c305c4a5f333f3b033d548405c830016c4b623e787aa045145'
   },
+  '97': {
+    kind: 'evm',
+    key: '97',
+
+    numChainId: 97,
+    decimals: 18,
+    chainId: '0x61',
+    numLoad: 1,
+    isBridge: true,
+    isToken: true,
+    isSupportedNFT: true,
+    nftToken: 'BEP721',
+    trcToken: 'BEP20',
+    symbolSpecial: 'BSC',
+    balances: '0xA6762c710852681c4593C10c4304C5211FB2122c',
+    multisend: '0x2E1D30460265bFEBedacf5bb6f9A80F0E74B7498',
+    nftMint: '0x2418400d29F8B774E49e93C5cb54460ae5Ecd788',
+    stake: '0x08ac9c38ce078b9b81e5ab5bf8aafc3d2db94385',
+    subName: 'BSC',
+
+    isSupportedV2: true,
+    isWeb3: true,
+    isFee: true,
+    image: 'app_binance',
+
+    id: 'binancecoin',
+    name: 'BNB Smart Chain testnet',
+    shortName: 'BSC',
+    symbol: 'BNB',
+    chain: '97',
+    trcName: 'BNB BEP20',
+    rpcURL: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+    scan: 'https://testnet.bscscan.com/',
+    launchpadFactory: '0x31313099814980854c55C131bDEa6736e93feE8b',
+    launchpadMintableKey: '0x444f313053c893c305c4a5f333f3b033d548405c830016c4b623e787aa045145'
+  },
   bitcoin: {
     numLoad: 5,
     isFee: true,
