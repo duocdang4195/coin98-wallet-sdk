@@ -365,7 +365,7 @@ class EVMProvider {
         'emitGasPrice',
         this.chainSetting.key
       );
-      rawTransaction.gas = gasPriceDefault || (await this.getGasPrice());
+      rawTransaction.gasPrice = gasPriceDefault || (await this.getGasPrice());
     }
 
 
