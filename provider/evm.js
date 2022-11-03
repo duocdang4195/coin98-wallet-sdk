@@ -324,7 +324,7 @@ class EVMProvider {
 
     if (
       !wallet ||
-      !get(options, 'receiver') ||
+      // !get(options, 'receiver') ||
       !get(wallet, 'privateKey') ||
       !decryptedPrivateKey
     ) {
