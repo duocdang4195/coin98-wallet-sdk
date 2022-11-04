@@ -128,8 +128,8 @@ export const CHAIN_DATA = {
 
     id: 'ETH',
     name: 'Görli(ETH) testnet',
-    shortName: 'BSC',
-    symbol: 'BNB',
+    shortName: 'ETH',
+    symbol: 'ETH',
     chain: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     trcName: 'BNB BEP20',
     rpcURL: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
