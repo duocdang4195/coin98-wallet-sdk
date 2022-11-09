@@ -10,7 +10,7 @@ const useNFTs = (chain) => {
   };
 
   const get = (address) => {
-    return nftClient.get(`wallet/${chain}/${address}`);
+    return nftClient.get(`wallet/${chain}/${address}?page=1&size=10000`);
   };
 
   return {
