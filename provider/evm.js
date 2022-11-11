@@ -435,7 +435,7 @@ class EVMProvider {
         (err, hash) => {
           if (Object.keys(err || {}).length) {
             console.log('Transaction submitted to blockchain failed: ', err);
-            reject(this.encodeMessErr(err));
+            reject(err);
           } else {
             hashTxs = hash;
             console.log('Transaction submitted to blockchain success: ', hash);
@@ -468,7 +468,7 @@ class EVMProvider {
               });
           })
           .catch((err) => {
-            reject(this.encodeMessErr(err));
+            reject(err);
           });
       }
 
