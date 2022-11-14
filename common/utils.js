@@ -118,9 +118,12 @@ function crawlCache (key, pointer, worker, time = 5000) {
 }
 
 const convertHexToDecimal = (hexNum) => {
+  if (hexNum && !hexNum?.toString().startsWith('0x')) return hexNum;
   return converter.hexToDec(hexNum)
 }
 const convertDecimalToHex = (number) => {
+  if (number && number?.toString().startsWith('0x')) return number;
+
   return converter.decToHex(number.toString())
 }
 
