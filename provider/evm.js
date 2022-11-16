@@ -331,7 +331,7 @@ class EVMProvider {
       return;
     }
     const isHardwareWallet = get(wallet, 'isHardwareWallet');
-    const nonce = await this.getNonce(wallet.address);
+    const nonce = get(options, 'nonce', 0) || await this.getNonce(wallet.address);
 
     // Value must correct HEX format
     const {

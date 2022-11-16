@@ -9,8 +9,8 @@ const useNFTs = (chain) => {
     nftClient.get(`sync/${chain}`);
   };
 
-  const get = (address) => {
-    return nftClient.get(`wallet/${chain}/${address}?page=1&size=10000`);
+  const get = ({address, page = 1, size = 10} = {}) => {
+    return nftClient.get(`wallet/${chain}/${address}?page=${page}&size=${size}`);
   };
 
   return {
