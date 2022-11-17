@@ -376,7 +376,7 @@ class EVMProvider {
       const gasEst =
         (await this.estimateGasTxs(rawTransaction, {
           multiply: gasMultiply,
-        })) * 4;
+        })) * 1.2;
       rawTransaction.gas = gasEst;
 
       if (isGetGas) {
