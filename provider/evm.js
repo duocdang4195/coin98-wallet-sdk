@@ -9,6 +9,7 @@ import { AWS_CURRENCY, CHAIN_ID } from '../common/constants';
 import { bech32 } from 'bech32';
 import useNFTs from '../services/nfts';
 import dayjs from 'dayjs';
+import { cloneDeep, pick } from 'lodash';
 
 // Provider for all EVM types chain, something like Ether, BNB Chain, Avax-C ....
 // Readmore about EVM types chain in https://web3js.readthedocs.io/, https://docs.ethers.io/v5/
@@ -255,8 +256,9 @@ class EVMProvider {
   };
 
   estimateGasTxs = (transaction, options) => {
+    const txn  = pick(cloneDeep(transaction), ['data', 'from', 'to'])
     return this.client.eth
-      .estimateGas(transaction)
+      .estimateGas(txn)
       .then((estGas) => {
         console.log({ estGas });
         const gasMultiply = get(options, 'multiply');
@@ -360,7 +362,7 @@ class EVMProvider {
     };
 
 
-    if (!rawTransaction.gasPrice) {
+    if (!isGetGas && !rawTransaction.gasPrice) {
       const gasPriceDefault = await window.wallet.walletService.getPostSocket(
         'emitGasPrice',
         this.chainSetting.key
