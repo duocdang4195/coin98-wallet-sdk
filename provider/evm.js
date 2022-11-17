@@ -373,10 +373,12 @@ class EVMProvider {
       !rawTransaction.gas ||
       parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0
     ) {
-      const gasEst =
+      let gasEst =
         (await this.estimateGasTxs(rawTransaction, {
           multiply: gasMultiply,
         })) * 1.2;
+
+      gasEst = +parseFloat(gasEst).toFixed(0);
       rawTransaction.gas = gasEst;
 
       if (isGetGas) {
