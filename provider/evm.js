@@ -391,7 +391,7 @@ class EVMProvider {
         .on('receipt', async function (receipt) {
             const endTime = dayjs().unix();
             resolve(hashTxs);
-
+            console.log({receipt});
             callbackFinal &&
               callbackFinal({
                 time: {
