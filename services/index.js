@@ -1,6 +1,6 @@
 import utils from '../common/utils'
 import Connector from '../system/connector'
-import useSocket from './socket'
+// import useSocket from './socket'
 import useSupport from './support'
 import { CHAIN_DATA } from '../common/constants'
 import dayjs from 'dayjs'
@@ -10,8 +10,8 @@ class WalletServices {
   constructor () {
     this.connector = new Connector()
     this.support = useSupport()
-    this.socket = useSocket()
-    this.socket.activeSocket()
+    // this.socket = useSocket()
+    // this.socket.activeSocket()
     this.fetchTokenList()
   }
 
@@ -58,9 +58,9 @@ class WalletServices {
     return client.getMainToken()
   }
 
-  getPostSocket (type, params) {
-    return this.socket[type](params)
-  }
+  // getPostSocket (type, params) {
+  //   return this.socket[type](params)
+  // }
 
   // Find token by address and chain with local token list
   // * address The address of token
@@ -74,9 +74,9 @@ class WalletServices {
     return tokenByChain.find(tk => tk.address.toLowerCase() === fmtAddress)
   }
 
-  findTokenMarket (id) {
-    return this.socket.emitCoinMarket(id)
-  }
+  // findTokenMarket (id) {
+  //   return this.socket.emitCoinMarket(id)
+  // }
 
   // Validate address with rule regex and from library
   isAddress (chain, address) {
