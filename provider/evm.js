@@ -388,7 +388,7 @@ class EVMProvider {
 
       if (isWaitDone) {
         blockTransaction
-          .then((receipt) => {
+        .on('receipt', async function (receipt) {
             const endTime = dayjs().unix();
             resolve(hashTxs);
 
