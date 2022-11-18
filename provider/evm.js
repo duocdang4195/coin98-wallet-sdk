@@ -316,8 +316,8 @@ class EVMProvider {
     };
 
     if (!isGetGas && !rawTransaction.gasPrice) {
-      const gasPriceDefault = await window.wallet.walletService.getPostSocket('emitGasPrice', this.chainSetting.key);
-      rawTransaction.gasPrice = gasPriceDefault || (await this.getGasPrice());
+      // const gasPriceDefault = await window.wallet.walletService.getPostSocket('emitGasPrice', this.chainSetting.key);
+      rawTransaction.gasPrice = (await this.getGasPrice());
     }
 
     if (!rawTransaction.gas || parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0) {
@@ -378,11 +378,11 @@ class EVMProvider {
           callback && callback(hash);
           !isWaitDone && resolve(hash);
 
-          window.wallet.walletService.getPostSocket('emitTxs', {
-            hash,
-            chain: this.chainSetting.key,
-            rawTransaction,
-          });
+          // window.wallet.walletService.getPostSocket('emitTxs', {
+          //   hash,
+          //   chain: this.chainSetting.key,
+          //   rawTransaction,
+          // });
         }
       });
 
