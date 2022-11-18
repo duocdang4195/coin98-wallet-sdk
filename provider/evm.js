@@ -27,9 +27,7 @@ class EVMProvider {
 
     this.chainId = get(this.chainSetting, 'numChainId');
 
-    this.client.setProvider(
-      new this.client.providers.HttpProvider(options.rpc, clientOptions)
-    );
+    this.client.setProvider(new this.client.providers.HttpProvider(options.rpc, clientOptions));
 
     // For a case testnet or missing chainId
     if (!this.chainId) {
@@ -45,9 +43,7 @@ class EVMProvider {
     // For case EVM chain has a special prefix like ronin and harmony ( ronin: or ONE: )
     const startWithCharacters = this.chainSetting.prefix || '0x';
     const numCharacters = this.chainSetting.numCharacters || 40;
-    const reg = new RegExp(
-      `^(${startWithCharacters})[0-9A-Fa-f]{${numCharacters}}$`
-    );
+    const reg = new RegExp(`^(${startWithCharacters})[0-9A-Fa-f]{${numCharacters}}$`);
     const isValid = reg.test(address);
     return isValid;
   }
@@ -65,17 +61,10 @@ class EVMProvider {
 
         const rawBalance = await this.client.eth.getBalance(address, block);
 
-        return get(options, 'isRaw')
-          ? rawBalance
-          : utils.rawToHuman(rawBalance, this.chainSetting.decimals);
+        return get(options, 'isRaw') ? rawBalance : utils.rawToHuman(rawBalance, this.chainSetting.decimals);
       };
 
-      return utils.crawlCache(
-        address + 'balance',
-        this,
-        worker,
-        get(options, 'isLatest') ? 0 : 5000
-      );
+      return utils.crawlCache(address + 'balance', this, worker, get(options, 'isLatest') ? 0 : 5000);
     } catch (error) {
       return 0;
     }
@@ -85,17 +74,10 @@ class EVMProvider {
     required(get(options, 'contract.address'), 0);
     try {
       const worker = async () => {
-        const tokenContract = this.getContract(
-          get(options, 'contract.address'),
-          ABI.erc20
-        );
+        const tokenContract = this.getContract(get(options, 'contract.address'), ABI.erc20);
 
-        const rawBalance = await this.callContract(tokenContract, 'balanceOf', [
-          address,
-        ]);
-        return get(options, 'isRaw')
-          ? rawBalance
-          : utils.rawToHuman(rawBalance, get(options, 'contract.decimals'));
+        const rawBalance = await this.callContract(tokenContract, 'balanceOf', [address]);
+        return get(options, 'isRaw') ? rawBalance : utils.rawToHuman(rawBalance, get(options, 'contract.decimals'));
       };
 
       return utils.crawlCache(
@@ -115,23 +97,15 @@ class EVMProvider {
       const numberSplit = 1000;
       const addressChain = compact(tokenList.map((token) => token.address));
 
-      const contractBalances = this.getContract(
-        this.chainSetting.balances,
-        ABI.balances
-      );
+      const contractBalances = this.getContract(this.chainSetting.balances, ABI.balances);
 
       const worker = async (start) => {
         // Split address into multiple part for loading balance
         const splitTokenData = addressChain.slice(start, start + numberSplit);
         // Call load token balances from smart contract
-        return this.callContract(contractBalances, 'balances', [
-          [address],
-          splitTokenData,
-        ])
+        return this.callContract(contractBalances, 'balances', [[address], splitTokenData])
           .then((onChainData) => {
-            const mapData = onChainData.map(
-              this.rawTokenToHuman(splitTokenData, address)
-            );
+            const mapData = onChainData.map(this.rawTokenToHuman(splitTokenData, address));
             return mapData;
           })
           .catch();
@@ -154,17 +128,11 @@ class EVMProvider {
 
     let realReceiver = receiver;
     // Chain started with prefix need to format to EVM address before sending
-    if (
-      this.chainSetting.prefix &&
-      receiver.startsWith(this.chainSetting.prefix)
-    ) {
+    if (this.chainSetting.prefix && receiver.startsWith(this.chainSetting.prefix)) {
       realReceiver = this.formatPrefixAddress(receiver, true);
     }
 
-    return this.postBaseSendTxs(
-      wallet,
-      Object.assign(options, { amount, receiver: realReceiver })
-    );
+    return this.postBaseSendTxs(wallet, Object.assign(options, { amount, receiver: realReceiver }));
   }
 
   formatPrefixAddress(address, isRevert) {
@@ -174,9 +142,7 @@ class EVMProvider {
       }
 
       const prefix = 'one';
-      const words = bech32.toWords(
-        Buffer.from(address.replace('0x', ''), 'hex')
-      );
+      const words = bech32.toWords(Buffer.from(address.replace('0x', ''), 'hex'));
       return bech32.encode(prefix, words);
     } else {
       return address.replace(this.chainSetting.prefix, '0x');
@@ -238,17 +204,11 @@ class EVMProvider {
   }
 
   getContract(contract, code) {
-    if (!this[contract]) {
-      this[contract] = new this.client.eth.Contract(code, contract);
-    }
-    return this[contract];
+    return new this.client.eth.Contract(code, contract);
   }
 
   getNonce = (address) => {
-    const worker = () => {
-      return this.client.eth.getTransactionCount(address);
-    };
-    return utils.crawlCache(address + 'nonce', this, worker, 5000);
+    return this.client.eth.getTransactionCount(address);
   };
 
   getGasPrice = () => {
@@ -256,18 +216,14 @@ class EVMProvider {
   };
 
   estimateGasTxs = (transaction, options) => {
-    const txn  = pick(cloneDeep(transaction), ['data', 'from', 'to'])
+    const txn = pick(cloneDeep(transaction), ['data', 'from', 'to']);
     return this.client.eth
       .estimateGas(txn)
       .then((estGas) => {
         console.log({ estGas });
         const gasMultiply = get(options, 'multiply');
 
-        return estGas < 21000
-          ? 21000
-          : gasMultiply
-          ? utils.Math.multiply(estGas, gasMultiply, 0)
-          : estGas;
+        return estGas < 21000 ? 21000 : gasMultiply ? utils.Math.multiply(estGas, gasMultiply, 0) : estGas;
       })
       .catch((err) => {
         console.log('err estimate gas:', {
@@ -282,9 +238,7 @@ class EVMProvider {
           const splitGas = stringErr.match(/[0-9]+/g);
           const gasSuggest = splitGas[splitGas.length - 2];
 
-          transaction.gasPrice = utils.convertDecimalToHex(
-            utils.Math.multiply(gasSuggest, 1.05, 0)
-          );
+          transaction.gasPrice = utils.convertDecimalToHex(utils.Math.multiply(gasSuggest, 1.05, 0));
 
           return this.estimateGasTxs(transaction);
         }
@@ -333,7 +287,7 @@ class EVMProvider {
       return;
     }
     const isHardwareWallet = get(wallet, 'isHardwareWallet');
-    const nonce = get(options, 'nonce', 0) || await this.getNonce(wallet.address);
+    const nonce = get(options, 'nonce', 0) || (await this.getNonce(wallet.address));
 
     // Value must correct HEX format
     const {
@@ -361,20 +315,12 @@ class EVMProvider {
       chainId: this.chainId,
     };
 
-
     if (!isGetGas && !rawTransaction.gasPrice) {
-      const gasPriceDefault = await window.wallet.walletService.getPostSocket(
-        'emitGasPrice',
-        this.chainSetting.key
-      );
+      const gasPriceDefault = await window.wallet.walletService.getPostSocket('emitGasPrice', this.chainSetting.key);
       rawTransaction.gasPrice = gasPriceDefault || (await this.getGasPrice());
     }
 
-
-    if (
-      !rawTransaction.gas ||
-      parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0
-    ) {
+    if (!rawTransaction.gas || parseFloat(utils.convertHexToDecimal(rawTransaction.gas)) <= 0) {
       let gasEst =
         (await this.estimateGasTxs(rawTransaction, {
           multiply: gasMultiply,
@@ -388,7 +334,6 @@ class EVMProvider {
       }
     }
 
-
     // Supported new hardfork london
     if (!isHardwareWallet && get(this.chainSetting, 'isSupportedEIP1559')) {
       const isSupportedGasFeeCap = [CHAIN_ID.avax];
@@ -397,18 +342,10 @@ class EVMProvider {
         rawTransaction.gasFeeCap = rawTransaction.gasPrice;
       }
 
-      rawTransaction.maxFeePerGas = utils.convertDecimalToHex(
-        utils.Math.multiply(rawTransaction.gasPrice, 1.2, 0)
-      );
-      rawTransaction.maxPriorityFeePerGas =
-        this.chainSetting.maxPriorityFeePerGas || '0x59682f00';
+      rawTransaction.maxFeePerGas = utils.convertDecimalToHex(utils.Math.multiply(rawTransaction.gasPrice, 1.2, 0));
+      rawTransaction.maxPriorityFeePerGas = this.chainSetting.maxPriorityFeePerGas || '0x59682f00';
 
-      if (
-        utils.Math.compare(
-          rawTransaction.maxPriorityFeePerGas,
-          rawTransaction.maxFeePerGas
-        ) === 1
-      ) {
+      if (utils.Math.compare(rawTransaction.maxPriorityFeePerGas, rawTransaction.maxFeePerGas) === 1) {
         rawTransaction.maxPriorityFeePerGas = rawTransaction.maxFeePerGas;
       }
 
@@ -422,10 +359,7 @@ class EVMProvider {
     if (isHardwareWallet) {
       // preTransaction = await window.wallet.sendHardwareWallet(this.chainSetting.key, rawTransaction)
     } else {
-      preTransaction = await this.client.eth.accounts.signTransaction(
-        rawTransaction,
-        decryptedPrivateKey
-      );
+      preTransaction = await this.client.eth.accounts.signTransaction(rawTransaction, decryptedPrivateKey);
     }
 
     const signedTransaction = preTransaction.rawTransaction;
@@ -434,26 +368,23 @@ class EVMProvider {
       let hashTxs;
       const startTime = dayjs().unix();
 
-      const blockTransaction = this.client.eth.sendSignedTransaction(
-        signedTransaction,
-        (err, hash) => {
-          if (Object.keys(err || {}).length) {
-            console.log('Transaction submitted to blockchain failed: ', err);
-            reject(err);
-          } else {
-            hashTxs = hash;
-            console.log('Transaction submitted to blockchain success: ', hash);
-            callback && callback(hash);
-            !isWaitDone && resolve(hash);
+      const blockTransaction = this.client.eth.sendSignedTransaction(signedTransaction, (err, hash) => {
+        if (Object.keys(err || {}).length) {
+          console.log('Transaction submitted to blockchain failed: ', err);
+          reject(err);
+        } else {
+          hashTxs = hash;
+          console.log('Transaction submitted to blockchain success: ', hash);
+          callback && callback(hash);
+          !isWaitDone && resolve(hash);
 
-            window.wallet.walletService.getPostSocket('emitTxs', {
-              hash,
-              chain: this.chainSetting.key,
-              rawTransaction,
-            });
-          }
+          window.wallet.walletService.getPostSocket('emitTxs', {
+            hash,
+            chain: this.chainSetting.key,
+            rawTransaction,
+          });
         }
-      );
+      });
 
       if (isWaitDone) {
         blockTransaction
