@@ -3,9 +3,9 @@ import Connector from '../system/connector'
 // import useSocket from './socket'
 import useSupport from './support'
 import { CHAIN_DATA } from '../common/constants'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
-
+import Web3 from 'web3';
+import dayjs from 'dayjs';
 class WalletServices {
   constructor () {
     this.connector = new Connector()
@@ -18,6 +18,12 @@ class WalletServices {
   async fetchTokenList () {
     if (this.tokenList) return
     this.tokenList = await this.support.getTokenList()
+  }
+
+  static toChecksumAddress(address) {
+    if (!address) return address;
+
+    return Web3.utils.toChecksumAddress(address);
   }
 
   async balanceOfWallet (wallet, options) {

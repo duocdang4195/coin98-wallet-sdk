@@ -10,6 +10,7 @@ import { bech32 } from 'bech32';
 import useNFTs from '../services/nfts';
 import dayjs from 'dayjs';
 import { cloneDeep, pick } from 'lodash';
+import axios from 'axios';
 
 // Provider for all EVM types chain, something like Ether, BNB Chain, Avax-C ....
 // Readmore about EVM types chain in https://web3js.readthedocs.io/, https://docs.ethers.io/v5/
@@ -413,6 +414,120 @@ class EVMProvider {
         });
       }
     });
+  }
+
+  sendRawTransaction = async (rawTX) => {
+    const rpcURL = get(this.chainSetting, 'rpcURL');
+
+    const res = await axios.post(rpcURL, {
+      method: "eth_sendRawTransaction",
+      params: [rawTX],
+      id: 1,
+      jsonrpc: "2.0",
+    });
+    if (res.data.error) {
+      throw new Error(res.data.error);
+    }
+    return res;
+  };
+
+  genWeb3Socket = (wss) => {
+    const web3 = new Web3();  
+    web3.setProvider(new web3.providers.WebsocketProvider(wss));
+
+    return web3.eth.subscribe('newBlockHeaders');
+  }
+
+  async postBaseSendTxnV2(wallet, options) {
+    const walletAddress = get(wallet, 'address');
+
+    const isGetGas = get(options, 'isGetGas', false);
+    const data = get(options, 'data', false);
+    const to = get(options, 'receiver') || get(options, 'to');
+    
+    const rawTransaction = {
+      from: walletAddress,
+      to,
+      data
+    };
+
+    rawTransaction.gas = get(options, 'gas') || Math.ceil(await this.estimateGasTxs(rawTransaction));
+    if (isGetGas) return rawTransaction.gas;
+    
+    rawTransaction.nonce = get(options, 'nonce') || (await this.getNonce(walletAddress));
+    rawTransaction.gasPrice = get(options, 'gasPrice') || (await this.getGasPrice());
+    console.log({ rawTransaction });
+    
+    return new Promise(async (resolve, reject) => {
+        
+      let transactionHash, err, subcribe, timer;
+
+      const isWaitDone = get(options, 'isWaitDone', false);
+      const isMobile = get(options, 'isMobile') || !window.coin98?.provider.ping;
+      const socketRPC = get(this.chainSetting, 'socketRPC');
+
+      subcribe = socketRPC && this.genWeb3Socket(socketRPC);
+
+      if (isMobile) {
+        
+        transactionHash = await window.coin98?.provider.request({
+          method: 'eth_sendTransaction',
+          params: [rawTransaction],
+        }).catch(res => res);
+        console.log({transactionHash}, typeof transactionHash === 'object');
+        //typeof object is err;
+        if (typeof transactionHash === 'object') {
+          err = get(transactionHash, 'message');
+        }
+
+      } else {
+        const decryptedPrivateKey = await utils?.decryptData({
+          privateKey: get(wallet, 'privateKey'),
+          uuid: get(options, 'uuid'),
+          deviceId: get(options, 'deviceId'),
+        });
+        const responseSign = await this.client.eth.accounts.signTransaction(rawTransaction, decryptedPrivateKey);
+        const signedTransaction = responseSign.rawTransaction;
+        transactionHash = responseSign.transactionHash
+
+        await this.sendRawTransaction(signedTransaction).catch((error) => {
+          console.log('Transaction submitted to blockchain failed: ', error.message);
+          err = error.message;
+
+          return error;
+        });
+      }
+      console.log({err});
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      console.log('Transaction submitted to blockchain successs: ', transactionHash);
+      !isWaitDone && resolve(transactionHash);
+
+      const callBackReceipt = (receipt) => {
+        const status = get(receipt, 'status', null);
+        if (typeof status !== 'boolean') return 
+        
+        timer && clearInterval(timer);
+        subcribe && subcribe.unsubscribe();
+        console.log({receipt});
+        status ? resolve(transactionHash) : reject('txsFail');
+        
+      }
+      console.log({subcribe});
+      socketRPC && subcribe.on('data', (blockHeader) => {
+        if (!transactionHash) return;
+        this.client.eth.getTransactionReceipt(transactionHash).then(callBackReceipt);
+      });
+
+      timer = !socketRPC && setInterval(() => {
+        this.client.eth.getTransactionReceipt(transactionHash).then(callBackReceipt);
+      }, [1000]);
+    
+      })
+    
   }
 }
 
