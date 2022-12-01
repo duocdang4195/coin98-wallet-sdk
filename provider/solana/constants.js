@@ -8,6 +8,10 @@ export const TOKEN_PROGRAM_ID = new PublicKey(
   'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 )
 
+export const TOKEN_PROGRAM_METAPLEX_ID = new PublicKey(
+  'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+)
+
 export const NATIVE_SOL = {
   symbol: 'SOL',
   name: 'Solana',
