@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Keypair, Transaction } from '@solana/web3.js';
 import get from 'lodash/get';
 import compact from 'lodash/compact';
 import chunk from 'lodash/chunk';
