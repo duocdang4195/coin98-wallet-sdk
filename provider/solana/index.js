@@ -219,7 +219,17 @@ class SolanaProvider {
     return hash;
   }
 
-  async signTransaction(transaction) {
+  async signTransaction(transaction, secretKey) {
+    const payer = Keypair.fromSecretKey(bs58.decode(secretKey));
+
+    if (secretKey) {
+      const dataSign = transaction.serializeMessage();
+      const signature = await SolanaService.signMessage(payer, dataSign);
+
+      transaction.addSignature(payer.publicKey, signature)
+      return transaction;
+    }
+
     return window?.coin98?.sol
       .request({ method: 'sol_sign', params: [transaction] })
       .then((res) => {
@@ -254,7 +264,17 @@ class SolanaProvider {
 
     // add fee payer
     transactions.feePayer = wallet.publicKey;
-    transactions = await this.signTransaction(transactions);
+    const decryptedSecretKey = await utils?.decryptData({
+      privateKey: get(wallet, 'privateKey'),
+      uuid: get(options, 'uuid'),
+      deviceId: get(options, 'deviceId'),
+    });
+
+    if (!decryptedSecretKey) {
+      throw new Error('Cannot detech your wallet');
+    }
+
+    transactions = await this.signTransaction(transactions, decryptedSecretKey);
 
     if (signers.length > 1) {
       const getSignerValid = signers.slice().filter((it) => it.secretKey);
