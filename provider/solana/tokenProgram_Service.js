@@ -69,4 +69,31 @@ export class TokenProgramService {
     console.log({ createATAInstruction })
     return createATAInstruction
   }
+
+  static async findOrCreateAssociatedTokenAccount(
+    {
+      connection,
+    payerAddress,
+    ownerAddress,
+    tokenMintAddress,
+    transactions
+    }
+  ) {
+
+    const ownerATATokenMint = await TokenProgramService.findAssociatedTokenAddress(
+      ownerAddress,
+      tokenMintAddress
+    );
+    const isAvailable = await TokenProgramService.isAddressAvailable(connection, ownerATATokenMint);
+    if (!isAvailable) {
+      const createATAInstruction = await TokenProgramService.createAssociatedTokenAccount(
+        payerAddress,
+        ownerAddress,
+        tokenMintAddress
+      );
+      transactions && transactions.add(createATAInstruction);
+    }
+
+    return [ownerATATokenMint] ;
+  }
 }
