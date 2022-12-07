@@ -37,7 +37,7 @@ export class SolanaService {
         .then(res => {
           const signature = get(res, 'signature');
 
-          return base58.decode(signature)
+          return Buffer.from(base58.decode(signature));
       })
     }
     const signature = await ed.sign(message, adminAccount.secretKey.slice(0, 32))
