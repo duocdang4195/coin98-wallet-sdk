@@ -435,7 +435,7 @@ export const CHAIN_DATA = {
     rpcURL: 'https://coin98.genesysgo.net',
     rpcURLSerum: 'https://solana-api.projectserum.com',
     scan: 'https://solscan.io',
-    launchpadProgramId: "4C2GUK747nrSAhxpbmFvuCAFcL2Si9j8CNruaDMKkqeT"
+    launchpadProgramId: "46kBqdaUSVKBwV5Z53xZHn5JthPUv6NbvBjiY6NTM3vL"
   },
   near: {
     numLoad: 2,
