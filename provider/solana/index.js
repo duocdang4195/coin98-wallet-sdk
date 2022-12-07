@@ -226,7 +226,7 @@ class SolanaProvider {
       const dataSign = transaction.serializeMessage();
       const signature = await SolanaService.signMessage(payer, dataSign);
 
-      transaction.addSignature(payer.publicKey, signature)
+      transaction.addSignature(payer.publicKey, signature);
       return transaction;
     }
 
@@ -282,16 +282,17 @@ class SolanaProvider {
     }
     transactions = transactions.serialize();
     const tx = await this.client
-      .sendRawTransaction(transactions, signers, {
+      .sendRawTransaction(transactions, {
         skipPreflight: false,
         preflightCommitment: 'confirmed',
       })
       .catch((err) => {
         const data = JSON.stringify(get(err, 'logs', ''));
-        return { isErr: true, data: this.encodeMessErr(data) };
+        return { isErr: true, data: data };
       });
     const { isErr } = tx;
     if (isErr) {
+      console.log({ tx });
       return tx;
     }
     callBack && callBack(tx, dataReturn);
@@ -305,10 +306,11 @@ class SolanaProvider {
         }
       },
       {
-        commitment: 'finalized',
+        commitment: 'confirmed',
         enableReceivedNotification: true,
       }
     );
+    console.log({ tx });
     return tx;
   }
 
