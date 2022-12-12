@@ -298,20 +298,25 @@ class SolanaProvider {
     callBack && callBack(tx, dataReturn);
 
     // wait for txs confirmed
-    this.client.onSignatureWithOptions(
-      tx,
-      async () => {
-        if (isWaitDone) {
+    return new Promise((resolve) => {
+      console.log({ tx });
+      
+      if (!isWaitDone) {
+        resolve(tx);
+      } 
+      
+      this.client.onSignatureWithOptions(
+        tx,
+        () => {
           callBackFinal && callBackFinal(tx, dataReturn);
+          resolve(tx);
+        },
+        {
+          commitment: 'confirmed',
+          enableReceivedNotification: true,
         }
-      },
-      {
-        commitment: 'confirmed',
-        enableReceivedNotification: true,
-      }
-    );
-    console.log({ tx });
-    return tx;
+      );
+    })
   }
 
   encodeMessErr(mess) {
