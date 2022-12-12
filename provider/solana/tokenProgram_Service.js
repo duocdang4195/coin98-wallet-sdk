@@ -66,7 +66,7 @@ export class TokenProgramService {
         ownerAddress,
         tokenMintAddress
       )
-    console.log({ createATAInstruction })
+    
     return createATAInstruction
   }
 
