@@ -231,27 +231,6 @@ function compare(x, y) {
   return new BigDecimal(x).compareTo(new BigDecimal(y));
 }
 
-function multiply(x, y, digits) {
-  return new BigDecimal(x)
-    .multiply(new BigDecimal(y))
-    [digits ? 'getPrettyValue' : 'getValue'](digits);
-}
-function divide(x, y, digits) {
-  return new BigDecimal(x)
-    .divide(new BigDecimal(y))
-    [digits ? 'getPrettyValue' : 'getValue'](digits);
-}
-function add(x, y, digits) {
-  return new BigDecimal(x)
-    .add(new BigDecimal(y))
-    [digits ? 'getPrettyValue' : 'getValue'](digits);
-}
-function subtract(x, y, digits) {
-  return new BigDecimal(x)
-    .subtract(new BigDecimal(y))
-    [digits ? 'getPrettyValue' : 'getValue'](digits);
-}
-
 function multiply (x, y, digits) {
   return new BigDecimal(x).multiply(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
 }
