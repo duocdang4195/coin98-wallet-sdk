@@ -486,6 +486,12 @@ class EVMProvider {
           uuid: get(options, 'uuid'),
           deviceId: get(options, 'deviceId'),
         });
+
+        if (!decryptedPrivateKey) {
+          reject('cannot detech your wallet');
+          return;
+        }
+
         const responseSign = await this.client.eth.accounts.signTransaction(rawTransaction, decryptedPrivateKey);
         const signedTransaction = responseSign.rawTransaction;
         transactionHash = responseSign.transactionHash

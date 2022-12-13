@@ -252,13 +252,40 @@ function subtract(x, y, digits) {
     [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
 
-async function decryptData({ privateKey, uuid, deviceId }) {
-  const decryptedData = await window.coin98?.provider.request({
-    method: 'aes_decrypt_coin98',
-    params: { data: privateKey, uuid, deviceId },
-  });
-  return decryptedData;
+function multiply (x, y, digits) {
+  return new BigDecimal(x).multiply(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
 }
+function divide (x, y, digits) {
+  return new BigDecimal(x).divide(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+}
+function add (x, y, digits) {
+  return new BigDecimal(x).add(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+}
+function subtract (x, y, digits) {
+  return new BigDecimal(x).subtract(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+}
+
+async function decryptData({ privateKey, uuid, deviceId }) {
+  return new Promise(async resolve => {
+    const timeOutRef = setTimeout(() => {
+      window.coin98?.provider.request({
+        method: 'connect_coin98',
+        params: {  uuid, txtConnect: 'autoConnect' },
+      });
+      resolve('');
+    }, 3000);
+
+    const decryptedData = await window.coin98?.provider.request({
+      method: 'aes_decrypt_coin98',
+      params: { data: privateKey, uuid, deviceId },
+    });
+  
+    clearTimeout(timeOutRef);
+
+    resolve(decryptedData);
+
+  })
+};
 
 async function sendConfirmTransaction(txn) {
   const sign = await window.coin98?.provider.request({
