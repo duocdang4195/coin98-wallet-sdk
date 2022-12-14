@@ -426,7 +426,7 @@ class EVMProvider {
       jsonrpc: "2.0",
     });
     if (res.data.error) {
-      throw new Error(res.data.error);
+      throw new Error(get(res, 'data.error.message'));
     }
     return res;
   };
