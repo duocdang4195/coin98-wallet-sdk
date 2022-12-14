@@ -1,8 +1,15 @@
 import * as borsh from '@project-serum/borsh';
 import { BorshService } from './borshService';
 import BN from 'js-big-decimal';
-import { SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from '@solana/web3.js';
-import { ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_PROGRAM_ID } from './constants';
+import {
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+  TransactionInstruction,
+} from '@solana/web3.js';
+import {
+  ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from './constants';
 import { TokenProgramService } from './tokenProgram_Service';
 
 const TOKEN_PROGRAM_LAYOUT = {
@@ -51,34 +58,61 @@ const CREATE_ASSOCIATED_TOKEN_ACCOUNT_LAYOUT = borsh.struct([]);
 
 export class TokenProgramInstructionService {
   static decodeTokenMintInfo(data) {
-    const decodedData = BorshService.deserialize(TOKEN_PROGRAM_LAYOUT.TOKEN_MINT, data);
+    const decodedData = BorshService.deserialize(
+      TOKEN_PROGRAM_LAYOUT.TOKEN_MINT,
+      data
+    );
     return {
       supply: decodedData.supply,
       decimals: decodedData.decimals,
       isInitialized: decodedData.isInitialized !== 0,
-      mintAuthority: decodedData.mintAuthorityOption === 0 ? null : decodedData.mintAuthority,
-      freezeAuthority: decodedData.freezeAuthorityOption === 0 ? null : decodedData.freezeAuthority,
+      mintAuthority:
+        decodedData.mintAuthorityOption === 0
+          ? null
+          : decodedData.mintAuthority,
+      freezeAuthority:
+        decodedData.freezeAuthorityOption === 0
+          ? null
+          : decodedData.freezeAuthority,
     };
   }
 
   static decodeTokenAccountInfo(data) {
-    const decodedData = BorshService.deserialize(TOKEN_PROGRAM_LAYOUT.TOKEN_ACCOUNT, data);
+    const decodedData = BorshService.deserialize(
+      TOKEN_PROGRAM_LAYOUT.TOKEN_ACCOUNT,
+      data
+    );
     return {
       mint: decodedData.mint,
       owner: decodedData.owner,
       amount: decodedData.amount,
       delegate: decodedData.delegateOption === 0 ? null : decodedData.delegate,
-      delegatedAmount: decodedData.delegateOption === 0 ? new BN(0) : decodedData.delegatedAmount,
+      delegatedAmount:
+        decodedData.delegateOption === 0
+          ? new BN(0)
+          : decodedData.delegatedAmount,
       isInitialized: decodedData.state !== 0,
       isFrozen: decodedData.state === 2,
       isNative: decodedData.isNativeOption === 1,
-      rentExemptReserve: decodedData.isNativeOption === 1 ? decodedData.isNative : null,
-      closeAuthority: decodedData.closeAuthorityOption === 0 ? null : decodedData.closeAuthority,
+      rentExemptReserve:
+        decodedData.isNativeOption === 1 ? decodedData.isNative : null,
+      closeAuthority:
+        decodedData.closeAuthorityOption === 0
+          ? null
+          : decodedData.closeAuthority,
     };
   }
 
-  static async createAssociatedTokenAccount(payerAddress, ownerAddress, tokenMintAddress) {
-    const tokenAccountAddress = await TokenProgramService.findAssociatedTokenAddress(ownerAddress, tokenMintAddress);
+  static async createAssociatedTokenAccount(
+    payerAddress,
+    ownerAddress,
+    tokenMintAddress
+  ) {
+    const tokenAccountAddress =
+      await TokenProgramService.findAssociatedTokenAddress(
+        ownerAddress,
+        tokenMintAddress
+      );
     const request = {};
     const keys = [
       { pubkey: payerAddress, isSigner: true, isWritable: true },
@@ -89,7 +123,11 @@ export class TokenProgramInstructionService {
       { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
     ];
-    const data = BorshService.serialize(CREATE_ASSOCIATED_TOKEN_ACCOUNT_LAYOUT, request, 10);
+    const data = BorshService.serialize(
+      CREATE_ASSOCIATED_TOKEN_ACCOUNT_LAYOUT,
+      request,
+      10
+    );
 
     return new TransactionInstruction({
       keys,
@@ -98,7 +136,12 @@ export class TokenProgramInstructionService {
     });
   }
 
-  static createTransferTransaction(ownerAddress, sourceTokenAddress, targetTokenAddress, amount) {
+  static createTransferTransaction(
+    ownerAddress,
+    sourceTokenAddress,
+    targetTokenAddress,
+    amount
+  ) {
     const keys = [
       { pubkey: sourceTokenAddress, isSigner: false, isWritable: true },
       { pubkey: targetTokenAddress, isSigner: false, isWritable: true },
@@ -120,7 +163,12 @@ export class TokenProgramInstructionService {
     return instruction;
   }
 
-  static initializeMint(tokenMintAddress, decimals, mintAuthorityAddress, freezeAuthorityAddress) {
+  static initializeMint(
+    tokenMintAddress,
+    decimals,
+    mintAuthorityAddress,
+    freezeAuthorityAddress
+  ) {
     const request = {
       instruction: 0,
       decimals,
@@ -131,7 +179,11 @@ export class TokenProgramInstructionService {
       { pubkey: tokenMintAddress, isSigner: false, isWritable: true },
       { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
     ];
-    const data = BorshService.serialize(TOKEN_PROGRAM_LAYOUT.INITIALIZE_MINT, request, 67);
+    const data = BorshService.serialize(
+      TOKEN_PROGRAM_LAYOUT.INITIALIZE_MINT,
+      request,
+      67
+    );
 
     return new TransactionInstruction({
       keys,
@@ -151,6 +203,25 @@ export class TokenProgramInstructionService {
       { pubkey: authorityAddress, isSigner: true, isWritable: false },
     ];
     const data = BorshService.serialize(TOKEN_PROGRAM_LAYOUT.MINT, request, 10);
+
+    return new TransactionInstruction({
+      keys,
+      data,
+      programId: TOKEN_PROGRAM_ID,
+    });
+  }
+
+  static approve(ownerAddress, ownerTokenAddress, delegateAddress, amount) {
+    const request = {
+      instruction: 4,
+      amount: amount,
+    };
+    const keys = [
+      { pubkey: ownerTokenAddress, isSigner: false, isWritable: true },
+      { pubkey: delegateAddress, isSigner: false, isWritable: false },
+      { pubkey: ownerAddress, isSigner: true, isWritable: false },
+    ];
+    const data = BorshService.serialize(APPROVE_LAYOUT, request, 10);
 
     return new TransactionInstruction({
       keys,
