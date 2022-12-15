@@ -67,11 +67,16 @@ export class TokenProgramService {
     );
     transaction.add(approveInstruction);
 
-    const txSign = await window.wallet.sendTransactionSolana(
-      connection,
-      transaction,
-      signers
-    );
+    const txSign = await window.wallet.sendTransactionSolana({
+      transactions: transaction,
+      signers: [payerAccount],
+      wallet,
+      chainType: 'solana',
+      options: {
+        isWaitDone: true,
+      },
+    });
+
     console.log(
       `Delegated ${amount} token units to ${delegateAddress.toBase58()}`,
       '---',
