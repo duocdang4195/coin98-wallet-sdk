@@ -220,9 +220,9 @@ class SolanaProvider {
   }
 
   async signTransaction(transaction, secretKey) {
-    const payer = Keypair.fromSecretKey(bs58.decode(secretKey));
-
+    
     if (secretKey) {
+      const payer = Keypair.fromSecretKey(bs58.decode(secretKey));
       const dataSign = transaction.serializeMessage();
       const signature = await SolanaService.signMessage(payer, dataSign);
 
@@ -233,7 +233,7 @@ class SolanaProvider {
     return window?.coin98?.sol
       .request({ method: 'sol_sign', params: [transaction] })
       .then((res) => {
-        const sig = bs58.decode(res.signature);
+        const sig = Buffer.from(bs58.decode(res.signature));
         const publicKey = new PublicKey(res.publicKey);
         transaction.addSignature(publicKey, sig);
         return transaction;
