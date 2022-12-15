@@ -51,7 +51,7 @@ export class TokenProgramService {
   }
 
   static async approve(
-    connection,
+    wallet,
     payerAccount,
     payerTokenAddress,
     delegateAddress,
@@ -65,7 +65,16 @@ export class TokenProgramService {
     );
     transaction.add(approveInstruction);
 
-    return approveInstruction;
+    const txSign = await window.wallet.sendTransactionSolana({
+      transactions: transaction,
+      signers: [payerAccount],
+      wallet,
+      chainType: 'solana',
+      options: {
+        isWaitDone: true,
+      },
+    });
+    return txSign;
   }
 
   static async isAddressAvailable(connection, address) {
