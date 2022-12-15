@@ -125,8 +125,9 @@ export class TokenProgramService {
           tokenMintAddress
         );
       transactions && transactions.add(createATAInstruction);
+      return [ownerATATokenMint, createATAInstruction];
     }
 
-    return [ownerATATokenMint];
+    return [ownerATATokenMint, null];
   }
 }
