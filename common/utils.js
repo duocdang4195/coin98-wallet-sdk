@@ -231,40 +231,54 @@ function compare(x, y) {
   return new BigDecimal(x).compareTo(new BigDecimal(y));
 }
 
-function multiply (x, y, digits) {
-  return new BigDecimal(x).multiply(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+function multiply(x, y, digits) {
+  return new BigDecimal(x)
+    .multiply(new BigDecimal(y))
+    [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
-function divide (x, y, digits) {
-  return new BigDecimal(x).divide(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+function divide(x, y, digits) {
+  return new BigDecimal(x)
+    .divide(new BigDecimal(y))
+    [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
-function add (x, y, digits) {
-  return new BigDecimal(x).add(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+function add(x, y, digits) {
+  return new BigDecimal(x)
+    .add(new BigDecimal(y))
+    [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
-function subtract (x, y, digits) {
-  return new BigDecimal(x).subtract(new BigDecimal(y))[digits ? 'getPrettyValue' : 'getValue'](digits)
+function subtract(x, y, digits) {
+  return new BigDecimal(x)
+    .subtract(new BigDecimal(y))
+    [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
 
 async function decryptData({ privateKey, uuid, deviceId }) {
-  return new Promise(async resolve => {
-    const timeOutRef = setTimeout(() => {
-      window.coin98?.provider.request({
-        method: 'connect_coin98',
-        params: {  uuid, txtConnect: 'autoConnect' },
-      });
-      resolve('');
-    }, 3000);
-
-    const decryptedData = await window.coin98?.provider.request({
+  const decryptedData = () =>
+    window.coin98?.provider.request({
       method: 'aes_decrypt_coin98',
       params: { data: privateKey, uuid, deviceId },
     });
   
+  const requestConnect = () => window.coin98?.provider.request({
+    method: 'connect_coin98',
+    params: { uuid, txtConnect: 'autoConnect' },
+  });
+
+  return new Promise(async (resolve) => {
+    const timeOutRef = setTimeout(async () => {
+      await requestConnect();
+      const decryptedKey = await decryptedData();
+
+      resolve(decryptedKey);
+    }, 5000);
+
+    const decryptedKey = await decryptedData();
+
     clearTimeout(timeOutRef);
 
-    resolve(decryptedData);
-
-  })
-};
+    resolve(decryptedKey);
+  });
+}
 
 async function sendConfirmTransaction(txn) {
   const sign = await window.coin98?.provider.request({
@@ -293,5 +307,5 @@ export default {
   decryptData,
   sendConfirmTransaction,
   handleSignMessageDapp,
-  genOwnerSolana
+  genOwnerSolana,
 };
