@@ -51,14 +51,13 @@ export class TokenProgramService {
   }
 
   static async approve(
-    connection,
+    wallet,
     payerAccount,
     payerTokenAddress,
     delegateAddress,
     amount
   ) {
     const transaction = new Transaction();
-
     const approveInstruction = TokenProgramInstructionService.approve(
       payerAccount.publicKey,
       payerTokenAddress,
@@ -67,18 +66,16 @@ export class TokenProgramService {
     );
     transaction.add(approveInstruction);
 
-    const txSign = await window.wallet.sendTransactionSolana(
-      connection,
-      transaction,
-      signers
-    );
-    console.log(
-      `Delegated ${amount} token units to ${delegateAddress.toBase58()}`,
-      '---',
-      txSign,
-      '\n'
-    );
-    return true;
+    const txSign = await window.wallet.sendTransactionSolana({
+      transactions: transaction,
+      signers: [payerAccount],
+      wallet,
+      chainType: 'solana',
+      options: {
+        isWaitDone: true,
+      },
+    });
+    return txSign;
   }
 
   static async isAddressAvailable(connection, address) {
