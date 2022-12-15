@@ -57,6 +57,7 @@ export class TokenProgramService {
     delegateAddress,
     amount
   ) {
+    const transaction = new Transaction();
     const approveInstruction = TokenProgramInstructionService.approve(
       payerAccount.publicKey,
       payerTokenAddress,
