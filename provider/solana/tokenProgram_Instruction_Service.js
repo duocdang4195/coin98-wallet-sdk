@@ -56,6 +56,11 @@ const TOKEN_PROGRAM_LAYOUT = {
 
 const CREATE_ASSOCIATED_TOKEN_ACCOUNT_LAYOUT = borsh.struct([]);
 
+const APPROVE_LAYOUT = borsh.struct([
+  borsh.u8('instruction'),
+  borsh.u64('amount'),
+]);
+
 export class TokenProgramInstructionService {
   static decodeTokenMintInfo(data) {
     const decodedData = BorshService.deserialize(
