@@ -15,6 +15,7 @@ import { NATIVE_SOL } from './constants';
 import utils, { required } from '../../common/utils';
 import { IdlParserService } from './idl_Parser_Services';
 import { SolanaService } from './solanaServices';
+import { isEmpty } from 'lodash';
 const bs58 = require('bs58');
 
 class SolanaProvider {
@@ -85,7 +86,7 @@ class SolanaProvider {
     required(decimals, 0);
     try {
       const worker = async () => {
-        const ata = await TokenProgramService.findAssociatedTokenAddress(
+        const ata = TokenProgramService.findAssociatedTokenAddress(
           ownerAddress,
           address
         );
@@ -122,7 +123,7 @@ class SolanaProvider {
       const arrAta = await Promise.all(
         addressChain.map(async (mint, index) => {
           const mintAddress = new PublicKey(mint);
-          const ata = await TokenProgramService.findAssociatedTokenAddress(
+          const ata = TokenProgramService.findAssociatedTokenAddress(
             ownerAddress,
             mintAddress
           );
@@ -172,7 +173,7 @@ class SolanaProvider {
 
     const transaction = new Transaction();
 
-    const sourceAddress = await TokenProgramService.findAssociatedTokenAddress(
+    const sourceAddress = TokenProgramService.findAssociatedTokenAddress(
       wallet.publicKey,
       mintAddress
     );
@@ -181,7 +182,7 @@ class SolanaProvider {
 
     // check if mint address different SOL, destination address is ata of receiver
     if (mintAddress.toString() !== NATIVE_SOL.mintAddress) {
-      destinationAddress = await TokenProgramService.findAssociatedTokenAddress(
+      destinationAddress = TokenProgramService.findAssociatedTokenAddress(
         receiver,
         mintAddress
       );
@@ -307,7 +308,11 @@ class SolanaProvider {
       
       this.client.onSignatureWithOptions(
         tx,
-        () => {
+        (notification) => {
+
+          const isErr = get(notification, 'result.err', {});
+          if (!isEmpty(isErr)) resolve({ isErr: true, data: '' });
+
           callBackFinal && callBackFinal(tx, dataReturn);
           resolve(tx);
         },

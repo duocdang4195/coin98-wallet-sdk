@@ -34,9 +34,9 @@ export class TokenProgramService {
     }
   }
 
-  static async findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
+  static findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
     try {
-      const [address] = await PublicKey.findProgramAddress(
+      const [address] = PublicKey.findProgramAddressSync(
         [
           walletAddress.toBuffer(),
           TOKEN_PROGRAM_ID.toBuffer(),
@@ -94,7 +94,6 @@ export class TokenProgramService {
         ownerAddress,
         tokenMintAddress
       );
-    console.log({ createATAInstruction });
     return createATAInstruction;
   }
 
@@ -106,7 +105,7 @@ export class TokenProgramService {
     transactions,
   }) {
     const ownerATATokenMint =
-      await TokenProgramService.findAssociatedTokenAddress(
+      TokenProgramService.findAssociatedTokenAddress(
         ownerAddress,
         tokenMintAddress
       );
