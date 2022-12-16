@@ -114,7 +114,7 @@ export class TokenProgramInstructionService {
     tokenMintAddress
   ) {
     const tokenAccountAddress =
-      await TokenProgramService.findAssociatedTokenAddress(
+      TokenProgramService.findAssociatedTokenAddress(
         ownerAddress,
         tokenMintAddress
       );
