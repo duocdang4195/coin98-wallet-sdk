@@ -81,9 +81,9 @@ class SolanaProvider {
     // address: mintAddress of token type Publickey
     // decimals: decimal of token
     // isRaw: if want to get raw balance
-    const { address, decimals, isRaw } = options;
-    required(address, 0);
-    required(decimals, 0);
+    const { address } = options
+    // required(address, 0);
+    // required(decimals, 0);
     try {
       const worker = async () => {
         const ata = TokenProgramService.findAssociatedTokenAddress(
@@ -95,7 +95,7 @@ class SolanaProvider {
           ata
         );
         const rawBalance = get(info, 'amount', '').toString();
-        return isRaw ? rawBalance : utils.rawToHuman(rawBalance, decimals);
+        return rawBalance;
       };
 
       return utils.crawlCache(
@@ -211,10 +211,11 @@ class SolanaProvider {
         amount
       );
     transaction.add(instructionTransfer);
-    const hash = await this.sendTransaction({
+    const hash = await this.postBaseSendTxs({
       transactions: transaction,
       wallet,
       signers: [wallet.publicKey],
+      options,
     });
     console.log({ hash });
     return hash;
@@ -301,11 +302,11 @@ class SolanaProvider {
     // wait for txs confirmed
     return new Promise((resolve) => {
       console.log({ tx });
-      
+
       if (!isWaitDone) {
         resolve(tx);
-      } 
-      
+      }
+
       this.client.onSignatureWithOptions(
         tx,
         (notification) => {
@@ -321,7 +322,7 @@ class SolanaProvider {
           enableReceivedNotification: true,
         }
       );
-    })
+    });
   }
 
   encodeMessErr(mess) {
