@@ -274,7 +274,7 @@ class EVMProvider {
   // Wallet must correct format { address, privateKey or mnemonic (not recommend) }
   async postBaseSendTxs(wallet, options) {
     const decryptedPrivateKey = await utils?.decryptData({
-      privateKey: get(wallet, 'privateKey'),
+      data: get(wallet, 'privateKey'),
       uuid: get(options, 'uuid'),
       deviceId: get(options, 'deviceId'),
     });
@@ -482,7 +482,7 @@ class EVMProvider {
 
       } else {
         const decryptedPrivateKey = await utils?.decryptData({
-          privateKey: get(wallet, 'privateKey'),
+          data: get(wallet, 'privateKey'),
           uuid: get(options, 'uuid'),
           deviceId: get(options, 'deviceId'),
         });

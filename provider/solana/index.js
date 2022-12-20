@@ -267,7 +267,7 @@ class SolanaProvider {
     // add fee payer
     transactions.feePayer = wallet.publicKey;
     const decryptedSecretKey = await utils?.decryptData({
-      privateKey: get(wallet, 'privateKey'),
+      data: get(wallet, 'privateKey'),
       uuid: get(options, 'uuid'),
       deviceId: get(options, 'deviceId'),
     });
