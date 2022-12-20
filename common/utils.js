@@ -61,15 +61,17 @@ export async function genOwnerSolana(wallet, deviceId, uuid) {
     let privateKey, seed;
 
     if (!wallet?.privateKey) {
-      const decryptMnemonic = await window.ethereum.request({
-        method: 'aes_decrypt_coin98',
-        params: { data: wallet.mnemonic, deviceId, uuid },
+      const decryptMnemonic = await decryptData({
+        data: wallet.mnemonic,
+        deviceId,
+        uuid,
       });
       seed = await generateSeed(decryptMnemonic);
     } else {
-      const decryptPrivateKey = await window.ethereum.request({
-        method: 'aes_decrypt_coin98',
-        params: { data: wallet.privateKey, deviceId, uuid },
+      const decryptPrivateKey = await decryptData({
+        data: wallet.privateKey,
+        deviceId,
+        uuid,
       });
       privateKey = decryptPrivateKey;
     }
@@ -252,17 +254,18 @@ function subtract(x, y, digits) {
     [digits ? 'getPrettyValue' : 'getValue'](digits);
 }
 
-async function decryptData({ privateKey, uuid, deviceId }) {
+async function decryptData({ data, uuid, deviceId }) {
   const decryptedData = () =>
     window.coin98?.provider.request({
       method: 'aes_decrypt_coin98',
-      params: { data: privateKey, uuid, deviceId },
+      params: { data: data, uuid, deviceId },
     });
-  
-  const requestConnect = () => window.coin98?.provider.request({
-    method: 'connect_coin98',
-    params: { uuid, txtConnect: 'autoConnect' },
-  });
+
+  const requestConnect = () =>
+    window.coin98?.provider.request({
+      method: 'connect_coin98',
+      params: { uuid, txtConnect: 'autoConnect' },
+    });
 
   return new Promise(async (resolve) => {
     const timeOutRef = setTimeout(async () => {
