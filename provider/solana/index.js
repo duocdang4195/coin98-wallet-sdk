@@ -257,7 +257,7 @@ class SolanaProvider {
     // callBackFinal: execute when txs max confirmed -> func
     // callBack: execute when txs confirmed at least one ->
     // dataReturn: if you want to return data -> any
-    const { isWaitDone, callBackFinal, dataReturn, callBack } = options;
+    const { isWaitDone, callBackFinal, dataReturn, callBack, isGetGas = false } = options;
 
     // add recent block
     transactions.recentBlockhash = (
@@ -266,6 +266,13 @@ class SolanaProvider {
 
     // add fee payer
     transactions.feePayer = wallet.publicKey;
+
+    if (isGetGas) {
+      const fees = await transactions.getEstimatedFee(this.client);
+
+      return fees;
+    }
+
     const decryptedSecretKey = await utils?.decryptData({
       data: get(wallet, 'privateKey'),
       uuid: get(options, 'uuid'),
