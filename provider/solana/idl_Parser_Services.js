@@ -1,6 +1,5 @@
 import * as borsh from "@project-serum/borsh";
 import { TransactionInstruction } from "@solana/web3.js";
-import camelCase from "camelcase";
 import { snakeCase } from "snake-case";
 import { BorshService } from "./borshService";
 import { IdlCoder } from "./idl_Coder";
@@ -26,7 +25,7 @@ export class IdlParserService {
             Array.from([...(idl.accounts ?? []), ...(idl.types ?? [])])
           );
         });
-        const name = camelCase(m.name);
+        const name = m.name;
         return [name, borsh.struct(fieldLayouts, name)];
       })
       .concat(
@@ -37,7 +36,7 @@ export class IdlParserService {
               Array.from([...(idl.accounts ?? []), ...(idl.types ?? [])])
             )
           );
-          const name = camelCase(ix.name);
+          const name = ix.name;
           return [name, borsh.struct(fieldLayouts, name)];
         })
       );
