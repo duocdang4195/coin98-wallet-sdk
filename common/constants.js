@@ -543,7 +543,8 @@ export const CHAIN_DATA = {
     chain: 'matic',
     trcName: 'MATIC PRC20',
     rpcURL: 'https://rpc-mainnet.maticvigil.com',
-    scan: 'https://polygonscan.com'
+    scan: 'https://polygonscan.com',
+    socketRPC: "wss://muddy-radial-snowflake.matic.discover.quiknode.pro/d4092cccf1b6b45bb39dc82c4afd241ebeb26d45/"
   },
   fantom: {
     numChainId: 250,

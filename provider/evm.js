@@ -435,7 +435,7 @@ class EVMProvider {
     const web3 = new Web3();  
     web3.setProvider(new web3.providers.WebsocketProvider(wss));
 
-    return web3.eth.subscribe('newBlockHeaders');
+    return web3;
   }
 
   async postBaseSendTxnV2(wallet, options) {
@@ -460,13 +460,11 @@ class EVMProvider {
     
     return new Promise(async (resolve, reject) => {
         
-      let transactionHash, err, subcribe, timer;
+      let transactionHash, err, timer;
 
       const isWaitDone = get(options, 'isWaitDone', false);
       const isMobile = get(options, 'isMobile') || !window.coin98?.provider.ping;
       const socketRPC = get(this.chainSetting, 'socketRPC');
-
-      subcribe = socketRPC && this.genWeb3Socket(socketRPC);
 
       if (isMobile) {
         
@@ -474,7 +472,7 @@ class EVMProvider {
           method: 'eth_sendTransaction',
           params: [rawTransaction],
         }).catch(res => res);
-        console.log({transactionHash}, typeof transactionHash === 'object');
+
         //typeof object is err;
         if (typeof transactionHash === 'object') {
           err = get(transactionHash, 'message');
@@ -517,19 +515,15 @@ class EVMProvider {
         if (typeof status !== 'boolean') return 
         
         timer && clearInterval(timer);
-        subcribe && subcribe.unsubscribe();
         console.log({receipt});
         status ? resolve(transactionHash) : reject('txsFail');
         
       }
-      console.log({subcribe});
-      socketRPC && subcribe.on('data', (blockHeader) => {
-        if (!transactionHash) return;
-        this.client.eth.getTransactionReceipt(transactionHash).then(callBackReceipt);
-      });
 
-      timer = !socketRPC && setInterval(() => {
-        this.client.eth.getTransactionReceipt(transactionHash).then(callBackReceipt);
+      const web3Receipt = socketRPC ? this.genWeb3Socket(socketRPC) : this.client;
+
+      timer = setInterval(() => {
+        web3Receipt.eth.getTransactionReceipt(transactionHash).then(callBackReceipt);
       }, [1000]);
     
       })
