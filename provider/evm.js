@@ -4,13 +4,13 @@ import ABI from '../module/ABI';
 import Connector from '../system/connector';
 import compact from 'lodash/compact';
 import get from 'lodash/get';
-import messages from './messages';
 import { AWS_CURRENCY, CHAIN_ID } from '../common/constants';
 import { bech32 } from 'bech32';
 import useNFTs from '../services/nfts';
 import dayjs from 'dayjs';
 import { cloneDeep, pick } from 'lodash';
 import axios from 'axios';
+import { MESS_000, MESS_001, MESS_002 } from './messages';
 
 // Provider for all EVM types chain, something like Ether, BNB Chain, Avax-C ....
 // Readmore about EVM types chain in https://web3js.readthedocs.io/, https://docs.ethers.io/v5/
@@ -125,7 +125,7 @@ class EVMProvider {
   }
 
   async transfer(receiver, amount, wallet, options) {
-    if (!this.isAddress(receiver)) throw messages.MESS_000;
+    if (!this.isAddress(receiver)) throw MESS_000;
 
     let realReceiver = receiver;
     // Chain started with prefix need to format to EVM address before sending
@@ -261,11 +261,11 @@ class EVMProvider {
     let messageReturn;
 
     if (stringResult.includes('insufficient funds')) {
-      messageReturn = messages.MESS_001;
+      messageReturn = MESS_001;
     }
 
     if (stringResult.includes('replacement transaction underpriced')) {
-      messageReturn = messages.MESS_002;
+      messageReturn = MESS_002;
     }
 
     return messageReturn || stringResult;
